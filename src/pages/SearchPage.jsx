@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { SALONS, LOCALITIES, getMatchColor } from '../data/salons.js';
 import SalonCard from '../components/search/SalonCard.jsx';
@@ -11,22 +11,46 @@ export default function SearchPage() {
   const navigate = useNavigate();
 
   const [filters, setFilters] = useState({
-    locality: searchParams.get('locality') || '',
-    category: searchParams.get('category') || '',
-    maxBudget: 50000,
+    locality: searchParams.get('locality') ? [searchParams.get('locality')] : [],
+    category: searchParams.get('category') ? [searchParams.get('category')] : [],
     openNow: false,
     walkins: false,
-    priceBand: '',
+    priceBand: [],
   });
   const [sort, setSort] = useState('Rating');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    const loc = searchParams.get('locality');
+    const q = searchParams.get('q');
+
+    if (searchParams.has('category') || searchParams.has('locality') || searchParams.has('q')) {
+      setFilters(prev => ({
+        ...prev,
+        category: cat ? [cat] : prev.category,
+        locality: loc ? [loc] : prev.locality,
+      }));
+      setSearchQuery(q || '');
+    } else if (searchParams.toString() === '') {
+      setFilters(prev => ({ ...prev, category: [], locality: [] }));
+      setSearchQuery('');
+    }
+  }, [searchParams]);
+
   const filtered = SALONS.filter(salon => {
-    if (filters.locality && salon.locality !== filters.locality) return false;
+    if (filters.locality.length > 0 && !filters.locality.includes(salon.locality)) return false;
     if (filters.openNow && !salon.openNow) return false;
     if (filters.walkins && !salon.tags.some(t => t.toLowerCase().includes('walk'))) return false;
-    if (filters.priceBand && salon.priceBand !== filters.priceBand) return false;
-    if (salon.priceFrom > filters.maxBudget) return false;
+    if (filters.priceBand.length > 0) {
+      const matchPrice = filters.priceBand.some(band => {
+        if (band === 'budget' && salon.priceFrom <= 999) return true;
+        if (band === 'mid' && salon.priceFrom >= 1000 && salon.priceFrom <= 2999) return true;
+        if (band === 'premium' && salon.priceFrom >= 3000) return true;
+        return false;
+      });
+      if (!matchPrice) return false;
+    }
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const matchName = salon.name.toLowerCase().includes(q);
@@ -35,7 +59,7 @@ export default function SearchPage() {
       const matchTag = salon.tags.some(t => t.toLowerCase().includes(q));
       if (!matchName && !matchLocality && !matchService && !matchTag) return false;
     }
-    if (filters.category && salon.category !== filters.category) return false;
+    if (filters.category.length > 0 && !filters.category.includes(salon.category)) return false;
     return true;
   }).sort((a, b) => {
     if (sort === 'AI Match') return b.matchScore - a.matchScore;
@@ -45,8 +69,15 @@ export default function SearchPage() {
     return 0;
   });
 
-  const setFilter = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: prev[key] === value ? '' : value }));
+  const setArrayFilter = (key, value) => {
+    setFilters(prev => {
+      const current = prev[key] || [];
+      if (current.includes(value)) {
+        return { ...prev, [key]: current.filter(v => v !== value) };
+      } else {
+        return { ...prev, [key]: [...current, value] };
+      }
+    });
   };
 
   return (
@@ -57,9 +88,9 @@ export default function SearchPage() {
       <aside className="filter-sidebar hide-mobile">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '1px' }}>Filters</span>
-          {(filters.locality || filters.category || filters.openNow || filters.walkins || filters.priceBand) && (
+          {(filters.locality.length > 0 || filters.category.length > 0 || filters.openNow || filters.walkins || filters.priceBand.length > 0) && (
             <button
-              onClick={() => setFilters({ locality: '', category: '', maxBudget: 50000, openNow: false, walkins: false, priceBand: '' })}
+              onClick={() => setFilters({ locality: [], category: [], openNow: false, walkins: false, priceBand: [] })}
               style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12 }}
             >
               Clear All
@@ -74,8 +105,8 @@ export default function SearchPage() {
             {LOCALITIES.map(loc => (
               <button
                 key={loc}
-                className={`filter-chip ${filters.locality === loc ? 'active' : ''}`}
-                onClick={() => setFilter('locality', loc)}
+                className={`filter-chip ${filters.locality.includes(loc) ? 'active' : ''}`}
+                onClick={() => setArrayFilter('locality', loc)}
                 id={`filter-loc-${loc.replace(' ', '-')}`}
               >
                 {loc}
@@ -88,11 +119,11 @@ export default function SearchPage() {
         <div className="filter-section">
           <div className="filter-title">Category</div>
           <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
-            {[['women', '👩 Women'], ['men', '👨 Men'], ['kids', '👧 Kids']].map(([val, label]) => (
+            {[['women', 'Women'], ['men', 'Men'], ['kids', 'Kids']].map(([val, label]) => (
               <button
                 key={val}
-                className={`filter-chip ${filters.category === val ? 'active' : ''}`}
-                onClick={() => setFilter('category', val)}
+                className={`filter-chip ${filters.category.includes(val) ? 'active' : ''}`}
+                onClick={() => setArrayFilter('category', val)}
                 id={`filter-cat-${val}`}
               >
                 {label}
@@ -105,33 +136,15 @@ export default function SearchPage() {
         <div className="filter-section">
           <div className="filter-title">Price Range</div>
           <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
-            {[['budget', '₹ Budget'], ['mid', '₹₹ Mid'], ['premium', '₹₹₹ Premium']].map(([val, label]) => (
+            {[['budget', '₹0 - ₹999'], ['mid', '₹1,000 - ₹2,999'], ['premium', '₹3,000+']].map(([val, label]) => (
               <button
                 key={val}
-                className={`filter-chip ${filters.priceBand === val ? 'active' : ''}`}
-                onClick={() => setFilter('priceBand', val)}
+                className={`filter-chip ${filters.priceBand.includes(val) ? 'active' : ''}`}
+                onClick={() => setArrayFilter('priceBand', val)}
               >
                 {label}
               </button>
             ))}
-          </div>
-        </div>
-
-        {/* Budget Slider */}
-        <div className="filter-section">
-          <div className="filter-title">Max Budget: ₹{(filters.maxBudget / 1000).toFixed(0)}K</div>
-          <input
-            type="range"
-            min={200}
-            max={50000}
-            step={500}
-            value={filters.maxBudget}
-            onChange={(e) => setFilters(prev => ({ ...prev, maxBudget: parseInt(e.target.value) }))}
-            className="budget-range"
-            id="budget-slider"
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-            <span>₹200</span><span>₹50,000</span>
           </div>
         </div>
 
@@ -158,7 +171,7 @@ export default function SearchPage() {
         {/* Toolbar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-            <strong style={{ color: 'var(--text)' }}>{filtered.length}</strong> salons{filters.category ? ` for ${filters.category === 'women' ? 'Women' : filters.category === 'men' ? 'Men' : 'Kids'}` : ''}{filters.locality ? ` in ${filters.locality}` : ''}
+            <strong style={{ color: 'var(--text)' }}>{filtered.length}</strong> salons{filters.category.length > 0 ? ` for ${filters.category.map(c => c === 'women' ? 'Women' : c === 'men' ? 'Men' : 'Kids').join(', ')}` : ''}{filters.locality.length > 0 ? ` in ${filters.locality.join(', ')}` : ''}
           </div>
 
           {/* Sort */}
@@ -177,18 +190,23 @@ export default function SearchPage() {
         </div>
 
         {/* Active Filters */}
-        {(filters.locality || filters.category || filters.openNow || filters.walkins) && (
+        {(filters.locality.length > 0 || filters.category.length > 0 || filters.openNow || filters.walkins || filters.priceBand.length > 0) && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-            {filters.locality && (
-              <span className="tag" style={{ cursor: 'pointer' }} onClick={() => setFilter('locality', filters.locality)}>
-                {filters.locality} ×
+            {filters.locality.map(loc => (
+              <span key={`loc-${loc}`} className="tag" style={{ cursor: 'pointer' }} onClick={() => setArrayFilter('locality', loc)}>
+                {loc} ×
               </span>
-            )}
-            {filters.category && (
-              <span className="tag" style={{ cursor: 'pointer' }} onClick={() => setFilter('category', filters.category)}>
-                {filters.category === 'women' ? '👩 Women' : filters.category === 'men' ? '👨 Men' : '👧 Kids'} ×
+            ))}
+            {filters.category.map(cat => (
+              <span key={`cat-${cat}`} className="tag" style={{ cursor: 'pointer' }} onClick={() => setArrayFilter('category', cat)}>
+                {cat === 'women' ? 'Women' : cat === 'men' ? 'Men' : 'Kids'} ×
               </span>
-            )}
+            ))}
+            {filters.priceBand.map(pb => (
+              <span key={`pb-${pb}`} className="tag" style={{ cursor: 'pointer' }} onClick={() => setArrayFilter('priceBand', pb)}>
+                {pb === 'budget' ? '₹0 - ₹999' : pb === 'mid' ? '₹1,000 - ₹2,999' : '₹3,000+'} ×
+              </span>
+            ))}
             {filters.openNow && (
               <span className="tag" style={{ cursor: 'pointer' }} onClick={() => setFilters(p => ({ ...p, openNow: false }))}>
                 Open Now ×
@@ -215,7 +233,7 @@ export default function SearchPage() {
             <h3 style={{ marginBottom: 8 }}>No salons found</h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: 24, fontSize: 14 }}>Try adjusting your filters or search query</p>
             <button
-              onClick={() => { setFilters({ locality: '', service: '', maxBudget: 50000, openNow: false, walkins: false, priceBand: '' }); setSearchQuery(''); }}
+              onClick={() => { setFilters({ locality: [], category: [], openNow: false, walkins: false, priceBand: [] }); setSearchQuery(''); }}
               className="btn-primary"
             >
               Clear Filters
