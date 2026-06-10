@@ -39,7 +39,7 @@ function AppInner() {
           } />
         </Routes>
       </main>
-      {!hideChrome && <Footer />}
+      {!hideChrome && !location.pathname.startsWith('/salon/') && <Footer />}
     </div>
   );
 }

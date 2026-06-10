@@ -804,8 +804,7 @@ p { font-family: var(--font-mono); }
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
   padding: 32px 24px;
 }
 

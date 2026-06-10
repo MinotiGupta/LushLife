@@ -308,24 +308,7 @@ export default function SalonProfilePage() {
             </div>
           </div>
 
-          {/* Book CTA Card */}
-          <div style={{ background: 'var(--gradient-hero)', borderRadius: 'var(--radius-lg)', padding: 20 }}>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginBottom: 4 }}>Ready to book?</div>
-            <div style={{ color: 'white', fontFamily: 'var(--font-heading)', fontSize: 18, fontWeight: 600, marginBottom: 16 }}>
-              Reserve Your Slot at {salon.name}
-            </div>
-            <button
-              onClick={() => navigate(`/booking/${salon.id}`)}
-              className="btn-gold"
-              style={{ width: '100%', justifyContent: 'center', padding: '14px', fontSize: 15 }}
-              id="book-now-cta"
-            >
-              📅 Book Now
-            </button>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginTop: 10 }}>
-              Instant confirmation · No payment needed now
-            </div>
-          </div>
+
         </div>
       </div>
 

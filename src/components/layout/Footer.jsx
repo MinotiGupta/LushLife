@@ -7,15 +7,13 @@ export default function Footer() {
         <div className="footer-top">
           <div className="footer-brand">
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-              <div className="navbar-logo-icon" style={{ width: 32, height: 32, fontSize: 14 }}>✨</div>
+              <img src="/favicon.svg" alt="LushLife Logo" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 18, fontWeight: 700, color: 'white' }}>
-                GlowMap
+                LushLife
               </span>
             </div>
             <p>Hyderabad's AI-powered salon discovery platform. Find your perfect match in under 3 minutes.</p>
-            <div className="ai-powered-badge" style={{ marginTop: 16 }}>
-              ⚡ AI Powered by Claude
-            </div>
+
           </div>
 
           <div className="footer-col">
@@ -52,7 +50,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© 2026 GlowMap · SuperXgen AI Buildathon 2026 · Hyderabad 🇮🇳</p>
+          <p>© 2026 LushLife · SuperXgen AI Buildathon 2026 · Hyderabad 🇮🇳</p>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
             <a href="#" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, textDecoration: 'none' }}>Privacy</a>
             <a href="#" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, textDecoration: 'none' }}>Terms</a>

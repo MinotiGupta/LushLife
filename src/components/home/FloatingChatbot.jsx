@@ -87,7 +87,7 @@ export default function FloatingChatbot({ salon = null, isHome = false }) {
         id="floating-chatbot-btn"
         style={{
           position: 'fixed',
-          bottom: '20px',
+          bottom: salon ? '100px' : '20px',
           right: '20px',
           width: '56px',
           height: '56px',
@@ -122,7 +122,7 @@ export default function FloatingChatbot({ salon = null, isHome = false }) {
           className="floating-chatbot-popup"
           style={{
             position: 'fixed',
-            bottom: '90px',
+            bottom: salon ? '170px' : '90px',
             right: '20px',
             width: '380px',
             maxHeight: '500px',
