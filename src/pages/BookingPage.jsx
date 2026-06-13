@@ -63,6 +63,10 @@ export default function BookingPage() {
   const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (preSelectedService && salon) {
       const svc = salon.services.find(s => s.name === preSelectedService);
       if (svc) {
