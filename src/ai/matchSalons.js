@@ -48,6 +48,8 @@ export const QUIZ_QUESTIONS = [
   },
 ];
 
+import { SALONS } from '../data/salons.js';
+
 // Simulate AI match scoring
 export function scoreSalon(salon, answers) {
   let score = 0;
@@ -149,8 +151,65 @@ export function simulateStreaming(text, onChunk, onComplete) {
 }
 
 // Mock chatbot responses
-export function getChatbotResponse(question, salon) {
+function buildSalonSummary(salon) {
+  return `${salon.name} in ${salon.locality}, starting at ₹${salon.priceFrom}. ${salon.tags[0] || salon.description.slice(0, 50)}.`;
+}
+
+function findSalonsForQuestion(q) {
+  const bridalKeywords = /bridal|wedding/;
+  const keratinKeywords = /keratin|frizz|smoothening|straighten/;
+  const curlyKeywords = /curly|curl/;
+  const budgetKeywords = /budget|affordable|cheap|₹|rupee/;
+  const makeupKeywords = /makeup|party|glam|event|reception|bridal/;
+  const nailsKeywords = /nail|manicure|pedicure|gel/;
+  const skinKeywords = /skin|facial|skincare|glow|derm|treatment/;
+  const locationMatch = SALONS.find(salon => q.includes(salon.locality.toLowerCase()));
+
+  let matches = [];
+
+  if (bridalKeywords.test(q)) {
+    matches = SALONS.filter(salon => salon.tags.some(tag => /bridal|wedding/i.test(tag)) || salon.services.some(service => /bridal/i.test(service.name)));
+  } else if (keratinKeywords.test(q)) {
+    matches = SALONS.filter(salon => salon.services.some(service => /keratin|smoothening/i.test(service.name)) || salon.tags.some(tag => /keratin/i.test(tag)));
+  } else if (curlyKeywords.test(q)) {
+    matches = SALONS.filter(salon => /curl/i.test(salon.name + ' ' + salon.description) || salon.services.some(service => /curl/i.test(service.name)));
+  } else if (budgetKeywords.test(q)) {
+    matches = SALONS.filter(salon => salon.priceFrom <= 1000);
+  } else if (makeupKeywords.test(q)) {
+    matches = SALONS.filter(salon => salon.services.some(service => /makeup|bridal|party|glam/i.test(service.name)) || salon.tags.some(tag => /makeup|bridal|party/i.test(tag)));
+  } else if (nailsKeywords.test(q)) {
+    matches = SALONS.filter(salon => salon.services.some(service => /nail|manicure|pedicure/i.test(service.name)) || salon.tags.some(tag => /nail/i.test(tag)));
+  } else if (skinKeywords.test(q)) {
+    matches = SALONS.filter(salon => salon.services.some(service => /facial|skin|cleanup|spa/i.test(service.name)) || salon.tags.some(tag => /skin|facial|spa/i.test(tag)));
+  }
+
+  if (locationMatch) {
+    matches = SALONS.filter(salon => salon.locality.toLowerCase() === locationMatch.locality.toLowerCase());
+  }
+
+  if (!matches.length) {
+    const recommendKeywords = /recommend|best|match|suggest/;
+    if (recommendKeywords.test(q)) {
+      matches = SALONS.slice().sort((a, b) => b.matchScore - a.matchScore);
+    }
+  }
+
+  if (!matches.length) {
+    matches = SALONS.slice().sort((a, b) => b.matchScore - a.matchScore);
+  }
+
+  return matches.slice(0, 3);
+}
+
+export function getChatbotResponse(question, salon = null) {
   const q = question.toLowerCase();
+
+  if (!salon) {
+    const matches = findSalonsForQuestion(q);
+    return `Here are the top ${matches.length} salons for your request:
+${matches.map((salon, idx) => `${idx + 1}. ${buildSalonSummary(salon)}`).join('\n')}
+Tell me if you want me to narrow this by price, area, or service type.`;
+  }
 
   if (q.includes('balayage') || q.includes('highlight')) {
     const balayageService = salon.services.find(s => s.name.toLowerCase().includes('balayage'));
@@ -191,6 +250,5 @@ export function getChatbotResponse(question, salon) {
     return `You can book directly through GlowMap! Click the "Book Now" button to select a service, stylist, and your preferred time slot. You'll get an instant confirmation via email.`;
   }
 
-  // Generic fallback
   return `Great question! ${salon.name} specialises in ${salon.tags.join(', ')}. For specific queries, I'd suggest calling them directly at ${salon.phone} — they're happy to help!`;
 }

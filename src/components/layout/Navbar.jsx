@@ -1,6 +1,6 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Search, MapPin, Menu, X, User, LogOut } from 'lucide-react';
+import { Search, MapPin, Menu, X, User, LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function Navbar() {
@@ -8,9 +8,16 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const mainPages = ['/', '/home', '/search'];
+  const showBackButton = !mainPages.includes(location.pathname);
   const { user, logout } = useAuth();
 
   useEffect(() => {
+    if (location.pathname === '/search') {
+      setSearch(searchParams.get('q') || '');
+    }
     let timeoutId;
     if (profileOpen) {
       timeoutId = setTimeout(() => {
@@ -22,7 +29,7 @@ export default function Navbar() {
         clearTimeout(timeoutId);
       }
     };
-  }, [profileOpen]);
+  }, [profileOpen, location.pathname, searchParams]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -42,11 +49,28 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        {/* Logo */}
-        <Link to={user ? '/search' : '/'} className="navbar-logo">
-          <img src="/favicon.svg" alt="LushLife Logo" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
-          <span className="navbar-logo-text">LushLife</span>
-        </Link>
+        {/* Back button on non-main pages */}
+        {showBackButton ? (
+          <button
+            type="button"
+            onClick={() => {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate('/search');
+              }
+            }}
+            className="back-button"
+            style={{ marginRight: 16, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, padding: '8px 12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-light)', borderRadius: 999, cursor: 'pointer' }}
+          >
+            <ArrowLeft size={16} /> Back
+          </button>
+        ) : (
+          <Link to={user ? '/search' : '/'} className="navbar-logo">
+            <img src="/favicon.svg" alt="LushLife Logo" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
+            <span className="navbar-logo-text">LushLife</span>
+          </Link>
+        )}
 
         {/* Search */}
         <form onSubmit={handleSearch} style={{ flex: 1, maxWidth: 400, display: 'flex' }}>
@@ -56,21 +80,32 @@ export default function Navbar() {
               type="text"
               placeholder="Search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearch(value);
+                if (value.trim()) {
+                  navigate(`/search?q=${encodeURIComponent(value)}`, { replace: true });
+                } else {
+                  navigate('/search', { replace: true });
+                }
+              }}
             />
           </div>
         </form>
 
         {/* Nav Links */}
-        <ul className="navbar-links hide-mobile">
-          <li><Link to="/search">Explore</Link></li>
-          <li><Link to="/search?category=women">Women</Link></li>
-          <li><Link to="/search?category=men">Men</Link></li>
-          <li><Link to="/search?category=kids">Kids</Link></li>
-        </ul>
-
         {/* Right side — auth state aware */}
-        <div className="navbar-cta" style={{ position: 'relative' }}>
+        <div className="navbar-cta" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
+          {user && ['/home', '/search'].includes(location.pathname) && (
+            <button
+              onClick={() => navigate('/ai-match')}
+              className="btn-secondary"
+              style={{ padding: '8px 16px', fontSize: 13 }}
+              id="navbar-ai-match"
+            >
+              Get AI Match
+            </button>
+          )}
           {user ? (
             /* Logged-in user avatar + dropdown */
             <>
@@ -148,12 +183,10 @@ export default function Navbar() {
           background: 'white', borderTop: '1px solid var(--border-light)',
           padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 16
         }}>
-          <Link to="/search" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>Explore Salons</Link>
-          <Link to="/search?category=women" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>Women</Link>
-          <Link to="/search?category=men" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>Men</Link>
-          <Link to="/search?category=kids" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>Kids</Link>
-          {user && (
+          {user ? (
             <Link to="/profile" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>My Profile</Link>
+          ) : (
+            <Link to="/" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>Sign In</Link>
           )}
           {user && (
             <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626', fontWeight: 600, textAlign: 'left', fontSize: 14, fontFamily: 'var(--font-mono)', padding: 0 }}>

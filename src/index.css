@@ -137,6 +137,22 @@ p { font-family: var(--font-mono); }
   box-shadow: var(--shadow-md);
 }
 
+.btn-primary:disabled,
+.btn-primary[disabled] {
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-primary:disabled:hover,
+.btn-primary[disabled]:hover {
+  background: var(--border);
+  transform: none;
+  box-shadow: none;
+}
+
 .btn-secondary {
   display: inline-flex;
   align-items: center;
@@ -1943,28 +1959,22 @@ p { font-family: var(--font-mono); }
 }
 
 /* ============================================
-   STICKY BOOK BAR
+   FLOATING BOOK BUTTON
    ============================================ */
-.sticky-book-bar {
+.floating-book-button {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border-light);
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  box-shadow: 0 -8px 32px rgba(194,24,91,0.08);
+  bottom: 24px;
+  right: 24px;
+  z-index: 60;
 }
 
-.sticky-book-info {
-  font-size: 14px;
-  color: var(--text-muted);
+.floating-book-button button {
+  border-radius: 999px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+}
+
+.sticky-book-bar {
+  display: none;
 }
 
 .sticky-book-info strong {
