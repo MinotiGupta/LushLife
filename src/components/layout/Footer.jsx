@@ -30,9 +30,9 @@ export default function Footer() {
           <div className="footer-col">
             <div className="footer-col-title">Categories</div>
             <ul>
-              <li><Link to="/search?category=women">👩 Women Salons</Link></li>
-              <li><Link to="/search?category=men">👨 Men's Grooming</Link></li>
-              <li><Link to="/search?category=kids">👧 Kids Salons</Link></li>
+              <li><Link to="/search?category=women">Women Salons</Link></li>
+              <li><Link to="/search?category=men">Men's Grooming</Link></li>
+              <li><Link to="/search?category=kids">Kids Salons</Link></li>
               <li><Link to="/search">All Salons</Link></li>
             </ul>
           </div>
