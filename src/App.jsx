@@ -5,6 +5,7 @@ import Footer from './components/layout/Footer.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
+import AIChatbotPage from './pages/AIChatbotPage.jsx';
 import SalonProfilePage from './pages/SalonProfilePage.jsx';
 import BookingPage from './pages/BookingPage.jsx';
 import OwnerDashboard from './pages/OwnerDashboard.jsx';
@@ -25,6 +26,7 @@ function AppInner() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/ai-match" element={<AIChatbotPage />} />
           <Route path="/salon/:id" element={<SalonProfilePage />} />
           <Route path="/booking/:id" element={<BookingPage />} />
           <Route path="/dashboard" element={<OwnerDashboard />} />

@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/search', { replace: true });
+    }
+  }, [user, navigate]);
 
   const [mode, setMode] = useState('landing'); // landing | login | signup
   const [email, setEmail] = useState('');
@@ -21,7 +27,7 @@ export default function LandingPage() {
     const result = login(email, password);
     setLoading(false);
     if (result.success) {
-      navigate('/search');
+      navigate('/search', { replace: true });
     } else {
       setError(result.error);
     }
@@ -29,7 +35,7 @@ export default function LandingPage() {
 
   const handleGuestLogin = () => {
     const result = login('demo@glowmap.in', 'demo');
-    if (result.success) navigate('/search');
+    if (result.success) navigate('/search', { replace: true });
   };
 
   const handleDemoFill = (demoEmail, demoPass) => {

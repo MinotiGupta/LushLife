@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSalonById, getMatchColor } from '../data/salons.js';
+import { getSalonById } from '../data/salons.js';
 import FloatingChatbot from '../components/home/FloatingChatbot.jsx';
 import { MapPin, Star, Clock, Phone, MessageCircle, Send, ChevronDown, ExternalLink, Check } from 'lucide-react';
 
@@ -11,6 +11,7 @@ export default function SalonProfilePage() {
 
   const [activeTab, setActiveTab] = useState('services');
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [showMatchReason, setShowMatchReason] = useState(false);
 
   if (!salon) {
     return (
@@ -21,8 +22,6 @@ export default function SalonProfilePage() {
       </div>
     );
   }
-
-  const matchColor = getMatchColor(salon.matchScore);
 
   return (
     <div style={{ paddingBottom: 100 }}>
@@ -55,9 +54,6 @@ export default function SalonProfilePage() {
                 <strong>{salon.rating}</strong>
                 <span style={{ opacity: 0.7 }}>({salon.reviewCount} reviews)</span>
               </div>
-              <div className={`ai-badge ${matchColor}`}>
-                ⚡ {salon.matchScore}% AI Match
-              </div>
               {salon.openNow && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#4ade80', fontSize: 14, fontWeight: 600 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }}></span>
@@ -78,6 +74,26 @@ export default function SalonProfilePage() {
           {/* Tags */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
             {salon.tags.map(t => <span key={t} className="tag">{t}</span>)}
+          </div>
+
+          {/* AI Match Explanation */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24, maxWidth: 700 }}>
+            <button
+              type="button"
+              onClick={() => setShowMatchReason(prev => !prev)}
+              className="btn-secondary"
+              style={{ alignSelf: 'flex-start' }}
+            >
+              ⚡ AI Match {salon.matchScore}%
+            </button>
+            {showMatchReason && (
+              <div style={{ background: 'var(--bg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Why this match?</div>
+                <div style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.7 }}>
+                  {salon.matchReason}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* AI Sentiment Badge */}
@@ -332,12 +348,8 @@ export default function SalonProfilePage() {
         </div>
       )}
 
-      {/* Sticky Book Bar */}
-      <div className="sticky-book-bar">
-        <div className="sticky-book-info">
-          <strong>{salon.name}</strong>
-          From ₹{salon.priceFrom.toLocaleString('en-IN')} · ⭐ {salon.rating} · {salon.locality}
-        </div>
+      {/* Floating Book Button */}
+      <div className="floating-book-button">
         <button
           onClick={() => navigate(`/booking/${salon.id}`)}
           className="btn-primary"

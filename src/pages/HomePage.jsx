@@ -1,7 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, MapPin, Star, ChevronRight, ArrowRight, Zap } from 'lucide-react';
-import AIQuiz from '../components/home/AIQuiz.jsx';
-import FloatingChatbot from '../components/home/FloatingChatbot.jsx';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import SalonCard from '../components/search/SalonCard.jsx';
 import { SALONS, LOCALITIES } from '../data/salons.js';
 
@@ -33,8 +31,8 @@ export default function HomePage() {
           </h1>
 
           <p className="hero-subtitle">
-            GlowMap's AI Stylist asks 4 questions and matches you with the best salon
-            for your hair type, occasion, and budget — personally, not generically.
+            GlowMap's AI assistant listens to what you need and shows the best salons
+            for your hair, occasion, budget, and location — with real match percentages.
           </p>
 
           {/* Locality Quick Chips */}
@@ -73,10 +71,42 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="how-section">
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', paddingBottom: 36 }}>
+          <div style={{ maxWidth: 620 }}>
+            <div className="section-eyebrow">Ready to find your salon?</div>
+            <h2 className="section-title">Browse salons or get an AI match</h2>
+            <p className="section-subtitle">
+              All salons are shown below with ratings, price, location and services. Click Get AI Match if you want the system to ask your preferences and suggest the best salons.
+            </p>
+          </div>
+
+          <button onClick={() => navigate('/ai-match')} className="btn-primary" style={{ minWidth: 220, padding: '16px 32px' }}>
+            Get AI Match
+          </button>
+        </div>
+      </section>
+
       {/* ========================
-          AI QUIZ
+          SALON LIST
           ======================== */}
-      <AIQuiz />
+      <section className="trending-section">
+        <div className="container">
+          <div className="section-header">
+            <div className="section-eyebrow">All Salons</div>
+            <h2 className="section-title">Hyderabad's Verified Salon Partners</h2>
+            <p className="section-subtitle">
+              Browse every salon in the directory. The cards show location, rating, starting price and service tags.
+            </p>
+          </div>
+
+          <div className="trending-grid">
+            {SALONS.map(salon => (
+              <SalonCard key={salon.id} salon={salon} showMatch={false} />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ========================
           HOW IT WORKS
@@ -136,11 +166,6 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <button onClick={() => navigate('/search')} className="btn-primary" style={{ padding: '16px 36px', fontSize: 16 }}>
-              Explore All 20 Salons <ArrowRight size={18} />
-            </button>
-          </div>
         </div>
       </section>
 
