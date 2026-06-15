@@ -166,3 +166,12 @@ export const MOCK_BOOKINGS = {
 export function getBookingsForUser(email) {
   return MOCK_BOOKINGS[email?.toLowerCase()] || [];
 }
+
+export function addBooking(email, newBooking) {
+  const key = email?.toLowerCase();
+  if (!key) return;
+  if (!MOCK_BOOKINGS[key]) {
+    MOCK_BOOKINGS[key] = [];
+  }
+  MOCK_BOOKINGS[key].unshift(newBooking); // Add to the top
+}

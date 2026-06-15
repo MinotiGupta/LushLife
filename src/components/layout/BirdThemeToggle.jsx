@@ -4,13 +4,13 @@ import './BirdThemeToggle.css';
 
 export default function BirdThemeToggle() {
   const { dark, setDark } = useTheme();
-  const [animating, setAnimating] = useState(false);
+  const [animating, setAnimating] = useState(false); // false, 'blowing', 'lighting'
 
   const handleClick = () => {
     if (animating) return;
-    setAnimating(true);
+    setAnimating(dark ? 'lighting' : 'blowing');
 
-    // After bird finishes blowing (~820ms), flip theme and rely on CSS transitions
+    // After bird finishes blowing/lighting (~820ms), flip theme
     setTimeout(() => {
       setDark(prev => !prev);
     }, 820);
@@ -21,9 +21,9 @@ export default function BirdThemeToggle() {
     }, 1400);
   };
 
-  return (
+    return (
     <button
-      className={`bird-toggle ${dark ? 'dark-mode' : ''} ${animating ? 'blowing' : ''}`}
+      className={`bird-toggle ${dark ? 'dark-mode' : ''} ${animating ? animating : ''}`}
       onClick={handleClick}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={dark ? 'Light mode' : 'Dark mode'}
@@ -49,7 +49,15 @@ export default function BirdThemeToggle() {
             <span className="bird-body" />
             <span className="bird-head">
               <span className="bird-eye" />
-              <span className="bird-beak" />
+              <span className="bird-beak">
+                {animating === 'lighting' && (
+                  <span className="bird-match">
+                    <span className="bird-match-head">
+                      <span className="bird-match-spark" />
+                    </span>
+                  </span>
+                )}
+              </span>
               <span className="bird-cheek" />
             </span>
             <span className="bird-wing" />
@@ -62,7 +70,7 @@ export default function BirdThemeToggle() {
         </span>
 
         {/* Air puff particles during blow */}
-        {animating && (
+        {animating === 'blowing' && (
           <span className="blow-puff" aria-hidden="true">
             <span className="puff p1" />
             <span className="puff p2" />

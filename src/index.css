@@ -277,6 +277,9 @@ body {
   background: transparent;
   border-color: #ffffff;
 }
+[data-theme="dark"] .auth-tab.active {
+  color: #000000;
+}
 
 #root {
   min-height: 100vh;
