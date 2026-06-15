@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { getSalonById } from '../data/salons.js';
+import { addBooking } from '../data/bookings.js';
 import { Check, ChevronRight } from 'lucide-react';
 
 const STEP_LABELS = ['Service', 'Stylist', 'Date & Time', 'Confirm'];
@@ -83,6 +84,23 @@ export default function BookingPage() {
     setBookingId(id);
     setConfirmed(true);
     setTimeout(launchConfetti, 200);
+
+    const dateStr = new Date();
+    dateStr.setDate(dateStr.getDate() + booking.day);
+    const dateFormatted = dateStr.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+
+    addBooking(booking.email, {
+      id: id,
+      salonId: salon.id,
+      salonName: salon.name,
+      salonLocality: salon.locality,
+      service: booking.service?.name,
+      stylist: booking.stylist?.name || 'Any Available',
+      date: dateFormatted,
+      time: booking.time,
+      amount: booking.service?.price || 0,
+      status: 'upcoming',
+    });
   };
 
   const canProceed = () => {

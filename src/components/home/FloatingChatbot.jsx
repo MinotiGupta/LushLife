@@ -9,8 +9,8 @@ export default function FloatingChatbot({ salon = null, isHome = false }) {
     {
       role: 'ai',
       text: salon
-        ? `Hi! I'm GlowMap AI for ${salon.name}. Ask me anything about their services, specialties, or availability! 💄`
-        : 'Hi! I\'m GlowMap AI. Ask me any questions about beauty salons in Hyderabad! 💇‍♀️'
+        ? `Hi! I'm LushLife AI for ${salon.name}. Ask me anything about their services, specialties, or availability! 💄`
+        : 'Hi! I\'m LushLife AI. Ask me any questions about beauty salons in Hyderabad!'
     }
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -126,7 +126,7 @@ export default function FloatingChatbot({ salon = null, isHome = false }) {
             right: '20px',
             width: '380px',
             maxHeight: '500px',
-            background: 'white',
+            background: 'var(--bg-card)',
             borderRadius: '12px',
             border: '1px solid var(--border-light)',
             boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
@@ -148,7 +148,7 @@ export default function FloatingChatbot({ salon = null, isHome = false }) {
             }}
           >
             <div>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>🤖 GlowMap AI</div>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>🤖 LushLife AI</div>
               <div style={{ fontSize: 11, opacity: 0.8, marginTop: 2 }}>
                 {salon ? `Salon Expert` : 'Salon Assistant'}
               </div>
@@ -189,12 +189,13 @@ export default function FloatingChatbot({ salon = null, isHome = false }) {
                 }}
               >
                 <div
+                  className={msg.role === 'ai' ? 'chatbot-msg-ai' : ''}
                   style={{
                     maxWidth: '80%',
                     padding: '10px 14px',
                     borderRadius: msg.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                    background: msg.role === 'user' ? '#111111' : '#f0f0f0',
-                    color: msg.role === 'user' ? 'white' : '#333',
+                    background: msg.role === 'user' ? '#111111' : 'var(--bg-secondary, #f0f0f0)',
+                    color: msg.role === 'user' ? 'white' : 'var(--text, #333)',
                     fontSize: 13,
                     lineHeight: 1.5,
                     wordWrap: 'break-word'
@@ -218,7 +219,7 @@ export default function FloatingChatbot({ salon = null, isHome = false }) {
               gap: '8px',
               padding: '12px',
               borderTop: '1px solid var(--border-light)',
-              background: '#fafafa'
+              background: 'var(--bg-card)'
             }}
           >
             <input
@@ -234,7 +235,9 @@ export default function FloatingChatbot({ salon = null, isHome = false }) {
                 borderRadius: '8px',
                 fontSize: 13,
                 fontFamily: 'var(--font-mono)',
-                outline: 'none'
+                outline: 'none',
+                background: 'var(--bg)',
+                color: 'var(--text)'
               }}
             />
             <button
