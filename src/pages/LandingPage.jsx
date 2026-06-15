@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { login, user } = useAuth();
+  const { login, register, user } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -12,10 +12,16 @@ export default function LandingPage() {
     }
   }, [user, navigate]);
 
-  const [mode, setMode] = useState('landing'); // landing | login | signup
+  const [mode, setMode] = useState('login'); // login | signup
+  // Login form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  // Signup form state
+  const [signupName, setSignupName] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPhone, setSignupPhone] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupConfirm, setSignupConfirm] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -33,15 +39,22 @@ export default function LandingPage() {
     }
   };
 
-  const handleGuestLogin = () => {
-    const result = login('demo@glowmap.in', 'demo');
-    if (result.success) navigate('/search', { replace: true });
-  };
-
-  const handleDemoFill = (demoEmail, demoPass) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
+  const handleSignup = async (e) => {
+    e.preventDefault();
     setError('');
+    if (signupPassword !== signupConfirm) {
+      setError('Passwords do not match.');
+      return;
+    }
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 700)); // simulate network
+    const result = register(signupName, signupEmail, signupPassword);
+    setLoading(false);
+    if (result.success) {
+      navigate('/search', { replace: true });
+    } else {
+      setError(result.error);
+    }
   };
 
   return (
@@ -122,34 +135,13 @@ export default function LandingPage() {
               <div className="auth-form-title">Welcome back</div>
               <div className="auth-form-sub">Sign in to view bookings & get AI matches</div>
 
-              {/* Demo hint */}
-              <div className="demo-hint-box">
-                <div className="demo-hint-label">⚡ Demo accounts — click to fill</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
-                  {[
-                    ['priya@gmail.com', 'priya123', 'Priya'],
-                    ['kavitha@gmail.com', 'kavi123', 'Kavitha'],
-                    ['demo@glowmap.in', 'demo', 'Ananya'],
-                  ].map(([e, p, n]) => (
-                    <button
-                      key={e}
-                      type="button"
-                      onClick={() => handleDemoFill(e, p)}
-                      className="demo-fill-btn"
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <div className="form-group">
                 <label className="form-label" htmlFor="login-email">Email</label>
                 <input
                   id="login-email"
                   type="email"
                   className="form-input"
-                  placeholder="priya@gmail.com"
+                  placeholder="your@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -182,53 +174,79 @@ export default function LandingPage() {
               >
                 {loading ? 'Signing in...' : 'Sign In →'}
               </button>
-
-              <div className="auth-divider"><span>or</span></div>
-
-              <button
-                type="button"
-                onClick={handleGuestLogin}
-                className="btn-secondary"
-                style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: 13 }}
-                id="guest-btn"
-              >
-                Continue as Guest
-              </button>
             </form>
 
           ) : (
-            /* ====== SIGNUP FORM (visual only for demo) ====== */
-            <form onSubmit={(e) => { e.preventDefault(); handleDemoFill('demo@glowmap.in', 'demo'); setMode('login'); }} className="auth-form">
+            /* ====== SIGNUP FORM ====== */
+            <form onSubmit={handleSignup} className="auth-form">
               <div className="auth-form-title">Create account</div>
               <div className="auth-form-sub">Join thousands of Hyderabad women on GlowMap</div>
 
               <div className="form-group">
                 <label className="form-label" htmlFor="signup-name">Full Name</label>
-                <input id="signup-name" type="text" className="form-input" placeholder="Ananya Sharma" value={name} onChange={e => setName(e.target.value)} required />
+                <input
+                  id="signup-name" type="text" className="form-input"
+                  placeholder="Ananya Sharma"
+                  value={signupName} onChange={e => setSignupName(e.target.value)}
+                  required
+                />
               </div>
 
               <div className="form-group">
                 <label className="form-label" htmlFor="signup-email">Email</label>
-                <input id="signup-email" type="email" className="form-input" placeholder="you@email.com" required />
+                <input
+                  id="signup-email" type="email" className="form-input"
+                  placeholder="you@email.com"
+                  value={signupEmail} onChange={e => setSignupEmail(e.target.value)}
+                  required
+                />
               </div>
 
               <div className="form-group">
-                <label className="form-label" htmlFor="signup-phone">Phone</label>
-                <input id="signup-phone" type="tel" className="form-input" placeholder="98480 XXXXX" required />
+                <label className="form-label" htmlFor="signup-phone">Phone (optional)</label>
+                <input
+                  id="signup-phone" type="tel" className="form-input"
+                  placeholder="98480 XXXXX"
+                  value={signupPhone} onChange={e => setSignupPhone(e.target.value)}
+                />
               </div>
 
               <div className="form-group">
                 <label className="form-label" htmlFor="signup-password">Password</label>
-                <input id="signup-password" type="password" className="form-input" placeholder="Min. 8 characters" required />
+                <input
+                  id="signup-password" type="password" className="form-input"
+                  placeholder="Min. 6 characters"
+                  value={signupPassword} onChange={e => setSignupPassword(e.target.value)}
+                  required
+                />
               </div>
 
-              <div className="demo-hint-box" style={{ marginBottom: 16 }}>
-                <span style={{ fontSize: 12 }}>⚡ Demo: Signing up will log you in as the demo user (Ananya Sharma)</span>
+              <div className="form-group">
+                <label className="form-label" htmlFor="signup-confirm">Confirm Password</label>
+                <input
+                  id="signup-confirm" type="password" className="form-input"
+                  placeholder="Re-enter password"
+                  value={signupConfirm} onChange={e => setSignupConfirm(e.target.value)}
+                  required
+                />
               </div>
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '14px', fontSize: 14 }} id="signup-submit">
-                Create Account →
+              {error && <div className="auth-error">{error}</div>}
+
+              <button
+                type="submit"
+                className="btn-primary"
+                style={{ width: '100%', justifyContent: 'center', padding: '14px', fontSize: 14 }}
+                id="signup-submit"
+                disabled={loading}
+              >
+                {loading ? 'Creating account...' : 'Create Account →'}
               </button>
+
+              <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', marginTop: 12 }}>
+                Already have an account?{' '}
+                <button type="button" onClick={() => { setMode('login'); setError(''); }} style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', fontSize: 12, padding: 0, textDecoration: 'underline' }}>Sign in</button>
+              </p>
             </form>
           )}
 
