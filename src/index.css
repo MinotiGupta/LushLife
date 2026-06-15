@@ -209,6 +209,75 @@ body {
   color: #555555;
 }
 
+/* Dark mode: profile header card */
+[data-theme="dark"] .profile-header-card {
+  background: transparent;
+  border-color: #ffffff;
+}
+[data-theme="dark"] .profile-header-card .profile-email,
+[data-theme="dark"] .profile-header-card .profile-stat-label {
+  color: #cccccc;
+}
+[data-theme="dark"] .profile-avatar {
+  background: transparent;
+  border: 1px solid #555555;
+}
+
+/* Dark mode: info card & map */
+[data-theme="dark"] .info-card {
+  background: transparent;
+  border-color: #ffffff;
+}
+[data-theme="dark"] .salon-map-placeholder {
+  background: transparent;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+/* Dark mode: booking flow */
+[data-theme="dark"] .service-option,
+[data-theme="dark"] .time-slot {
+  background: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+[data-theme="dark"] .slot-day-num {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+[data-theme="dark"] .service-option:hover,
+[data-theme="dark"] .service-option.selected,
+[data-theme="dark"] .time-slot:hover,
+[data-theme="dark"] .time-slot.selected,
+[data-theme="dark"] .slot-day-num:hover,
+[data-theme="dark"] .slot-day-num.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: #ffffff;
+}
+[data-theme="dark"] .service-option:hover .service-option-meta,
+[data-theme="dark"] .service-option.selected .service-option-meta {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-theme="dark"] .services-table tr:hover td {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode: booking steps */
+[data-theme="dark"] .booking-step-circle.active {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15);
+}
+[data-theme="dark"] .booking-step-circle.done {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+}
+[data-theme="dark"] .form-input:focus {
+  background: transparent;
+  border-color: #ffffff;
+}
+
 #root {
   min-height: 100vh;
   width: 100%;
@@ -1827,7 +1896,7 @@ p { font-family: var(--font-mono); }
    FOOTER
    ============================================ */
 .footer {
-  background: #1A0A10;
+  background: #000000;
   color: rgba(255,255,255,0.7);
   padding: 48px 24px 24px;
   margin-top: auto;
@@ -2209,18 +2278,25 @@ p { font-family: var(--font-mono); }
   color: var(--text-light);
 }
 
-/* Map placeholder */
-.map-placeholder {
-  background: linear-gradient(135deg, #f0e8e8, #e8dde8);
+/* Info Card */
+.info-card {
+  background: white;
   border-radius: var(--radius-lg);
-  height: 400px;
+  border: 1px solid var(--border-light);
+}
+
+/* Salon Map Placeholder */
+.salon-map-placeholder {
+  height: 140px;
+  background: linear-gradient(135deg, #f0e8e8, #e8dde8);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 13px;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
 
 /* Sort Select */
