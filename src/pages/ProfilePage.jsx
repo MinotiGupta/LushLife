@@ -218,7 +218,9 @@ export default function ProfilePage() {
           ) : (
             <div style={{ textAlign: 'center', padding: '60px 20px' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>—</div>
-              <h3 style={{ marginBottom: 8, fontSize: 16 }}>No {activeTab.toLowerCase()} bookings</h3>
+              <h3 style={{ marginBottom: 8, fontSize: 16 }}>
+                {activeTab === 'All' ? 'No Bookings' : `No ${activeTab.toLowerCase()} bookings`}
+              </h3>
               <p style={{ color: 'var(--text-muted)', fontSize: 13, marginBottom: 24 }}>
                 {activeTab === 'Upcoming' ? 'Book a salon to see your upcoming appointments here.' : 'Nothing to show yet.'}
               </p>

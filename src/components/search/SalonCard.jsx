@@ -62,20 +62,7 @@ function SalonCard({ salon, showMatch = true }) {
           ))}
         </div>
 
-        {/* AI Reason */}
-        {(salon.computedReason || salon.matchReason) && showMatch && (
-          <div className="salon-card-ai-reason">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-              <span style={{ fontSize: 11 }}>⚡</span>
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--rose)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Why AI Matched You
-              </span>
-            </div>
-            <div className="salon-card-ai-reason-text">
-              {salon.computedReason || salon.matchReason}
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );

@@ -96,22 +96,7 @@ export default function SalonProfilePage() {
             )}
           </div>
 
-          {/* AI Sentiment Badge */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
-            background: 'var(--rose-pale)', borderRadius: 'var(--radius-md)',
-            marginBottom: 24, border: '1px solid rgba(194,24,91,0.15)'
-          }}>
-            <span style={{ fontSize: 20 }}>💬</span>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--rose)', textTransform: 'uppercase', letterSpacing: 1 }}>
-                ⚡ AI Review Sentiment
-              </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--text)', marginTop: 2 }}>
-                {salon.sentiment}
-              </div>
-            </div>
-          </div>
+
 
           {/* Description */}
           <p style={{ fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 32 }}>
@@ -124,7 +109,6 @@ export default function SalonProfilePage() {
           <div style={{ marginBottom: 32 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
               <h3 style={{ fontFamily: 'var(--font-heading)' }}>Portfolio</h3>
-              <div className="ai-badge" style={{ fontSize: 11 }}>⚡ AI Style Tags</div>
             </div>
 
             <div className="photo-gallery">
@@ -170,7 +154,7 @@ export default function SalonProfilePage() {
 
           {/* Services Tab */}
           {activeTab === 'services' && (
-            <div style={{ background: 'white', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-light)', overflow: 'hidden' }}>
+            <div className="info-card" style={{ padding: 0, overflow: 'hidden', borderBottomLeftRadius: 'var(--radius-lg)', borderBottomRightRadius: 'var(--radius-lg)' }}>
               <table className="services-table">
                 <thead>
                   <tr>
@@ -185,9 +169,6 @@ export default function SalonProfilePage() {
                     <tr key={i}>
                       <td>
                         <div style={{ fontWeight: 600, marginBottom: 2 }}>{svc.name}</div>
-                        {svc.aiRecommended && (
-                          <span className="ai-badge" style={{ fontSize: 10, padding: '2px 8px' }}>⚡ AI Pick for You</span>
-                        )}
                       </td>
                       <td style={{ color: 'var(--text-muted)', fontSize: 13 }}>{svc.duration}</td>
                       <td><span className="service-price">₹{svc.price.toLocaleString('en-IN')}</span></td>
@@ -296,7 +277,7 @@ export default function SalonProfilePage() {
           <FloatingChatbot salon={salon} />
 
           {/* Info Card */}
-          <div style={{ background: 'white', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-light)', padding: 20, marginBottom: 20 }}>
+          <div className="info-card" style={{ padding: 20, marginBottom: 20 }}>
             <h4 style={{ marginBottom: 16, fontFamily: 'var(--font-heading)' }}>Salon Info</h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
@@ -314,11 +295,7 @@ export default function SalonProfilePage() {
             </div>
 
             {/* Map Embed Placeholder */}
-            <div style={{
-              marginTop: 16, height: 140, background: 'linear-gradient(135deg, #f0e8e8, #e8dde8)',
-              borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 13, color: 'var(--text-muted)', flexDirection: 'column', gap: 4
-            }}>
+            <div className="salon-map-placeholder" style={{ marginTop: 16 }}>
               <span style={{ fontSize: 28 }}>🗺️</span>
               <span>{salon.locality}, Hyderabad</span>
             </div>

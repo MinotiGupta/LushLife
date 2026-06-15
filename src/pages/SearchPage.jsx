@@ -178,11 +178,7 @@ export default function SearchPage() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            style={{
-              padding: '8px 14px', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)',
-              fontSize: 12, fontFamily: 'var(--font-mono)', cursor: 'pointer', background: 'white', outline: 'none',
-              color: 'var(--text)'
-            }}
+            className="sort-select"
             id="sort-select"
           >
             {SORT_OPTIONS.map(o => <option key={o}>{o}</option>)}

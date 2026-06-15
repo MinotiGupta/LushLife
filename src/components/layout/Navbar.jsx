@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-do
 import { useState, useEffect } from 'react';
 import { Search, MapPin, Menu, X, User, LogOut, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
+import BirdThemeToggle from './BirdThemeToggle.jsx';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -96,6 +97,8 @@ export default function Navbar() {
         {/* Nav Links */}
         {/* Right side — auth state aware */}
         <div className="navbar-cta" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Bird theme toggle */}
+          <BirdThemeToggle />
           {user && ['/home', '/search'].includes(location.pathname) && (
             <button
               onClick={() => navigate('/ai-match')}

@@ -15,7 +15,7 @@ export default function AIChatbotPage() {
   const [chatMessages, setChatMessages] = useState([
     {
       role: 'ai',
-      text: 'Hi! I am GlowMap AI. Tell me what you need and I will suggest the best salons for you.'
+      text: 'Hi! I am LushLife AI. Tell me what you need and I will suggest the best salons for you.'
     }
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -65,8 +65,8 @@ export default function AIChatbotPage() {
     <div style={{ padding: '40px 24px', maxWidth: 1180, margin: '0 auto' }}>
       <div style={{ marginBottom: 32 }}>
         <div className="section-eyebrow">Salon AI Match</div>
-        <h1 className="section-title">Tell GlowMap what you need</h1>
-        <p className="section-subtitle" style={{ maxWidth: 640 }}>
+        <h1 className="section-title" style={{ textAlign: 'left' }}>Tell LushLife what you need</h1>
+        <p className="section-subtitle" style={{ maxWidth: 640, margin: 0, textAlign: 'left' }}>
           Use the chatbot below to describe your salon needs and get personalised recommendations.
         </p>
       </div>
@@ -106,7 +106,7 @@ export default function AIChatbotPage() {
               type="submit"
               disabled={isChatting}
               className="btn-primary"
-              style={{ minWidth: 120, padding: '14px 18px' }}
+              style={{ padding: '14px 18px', flexShrink: 0 }}
             >
               <Send size={16} />
             </button>

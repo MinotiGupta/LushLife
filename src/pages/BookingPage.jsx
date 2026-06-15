@@ -52,7 +52,7 @@ export default function BookingPage() {
   const [step, setStep] = useState(0);
   const [booking, setBooking] = useState({
     service: preSelectedService ? salon?.services.find(s => s.name === preSelectedService) : null,
-    stylist: null,
+    stylist: undefined,
     day: 0,
     time: null,
     name: '',
@@ -87,7 +87,7 @@ export default function BookingPage() {
 
   const canProceed = () => {
     if (step === 0) return !!booking.service;
-    if (step === 1) return true; // Stylist optional
+    if (step === 1) return booking.stylist !== undefined;
     if (step === 2) return booking.time !== null;
     if (step === 3) return booking.name && booking.phone && booking.email;
     return false;
@@ -202,7 +202,7 @@ export default function BookingPage() {
               >
                 <div>
                   <div className="service-option-name">{svc.name}</div>
-                  <div className="service-option-meta">{svc.duration} {svc.aiRecommended && '· ⚡ AI Recommended'}</div>
+                  <div className="service-option-meta">{svc.duration}</div>
                 </div>
                 <div className="service-option-price">₹{svc.price.toLocaleString('en-IN')}</div>
               </div>
@@ -213,11 +213,10 @@ export default function BookingPage() {
         {/* ====== STEP 1: STYLIST ====== */}
         {step === 1 && (
           <>
-            <h3 style={{ fontFamily: 'var(--font-heading)', marginBottom: 8 }}>Choose Your Stylist</h3>
-            <p style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 20 }}>Optional — skip to let us assign the best available stylist</p>
+            <h3 style={{ fontFamily: 'var(--font-heading)', marginBottom: 20 }}>Choose Your Stylist</h3>
             <div className="stylist-grid">
               <div
-                className={`stylist-card ${!booking.stylist ? 'selected' : ''}`}
+                className={`stylist-card ${booking.stylist === null ? 'selected' : ''}`}
                 onClick={() => setBooking(prev => ({ ...prev, stylist: null }))}
               >
                 <div className="stylist-avatar" style={{ background: 'var(--border)' }}>🎲</div>
@@ -364,7 +363,7 @@ export default function BookingPage() {
               disabled={!canProceed()}
               id="next-step-btn"
             >
-              {step === 1 && !booking.stylist ? 'Skip — Any Stylist' : `Continue →`}
+              Continue →
             </button>
           ) : (
             <button

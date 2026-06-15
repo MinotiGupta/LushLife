@@ -61,10 +61,221 @@
   box-sizing: border-box;
 }
 
+*, *::before, *::after {
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, fill 0.5s ease, stroke 0.5s ease;
+}
+
+/* Smooth theme transition — feels like a light slowly fading */
 body {
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
+}
+
+/* ============================================
+   DARK MODE — pure black & white
+   ============================================ */
+[data-theme="dark"] {
+  --rose: #ffffff;
+  --rose-light: #cccccc;
+  --rose-pale: #111111;
+  --rose-dark: #ffffff;
+  --gold: #dddddd;
+  --gold-light: #aaaaaa;
+  --gold-pale: #0d0d0d;
+  --mauve: #888888;
+  --mauve-light: #555555;
+  --bg: #000000;
+  --bg-secondary: #0d0d0d;
+  --bg-card: #0a0a0a;
+  --text: #ffffff;
+  --text-muted: #888888;
+  --text-light: #555555;
+  --border: #2a2a2a;
+  --border-light: #141414;
+  --accent: #ffffff;
+
+  --gradient-hero: linear-gradient(135deg, #000000 0%, #0d0d0d 50%, #000000 100%);
+  --gradient-rose: linear-gradient(135deg, #333333 0%, #888888 100%);
+  --gradient-gold: linear-gradient(135deg, #222222 0%, #666666 100%);
+  --gradient-card: linear-gradient(145deg, #0a0a0a 0%, #111111 100%);
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.7);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.85);
+  --shadow-gold: 0 4px 16px rgba(255,255,255,0.06);
+
+  color-scheme: dark;
+}
+
+/* Dark mode: navbar */
+[data-theme="dark"] .navbar {
+  background: rgba(0, 0, 0, 0.92);
+  border-bottom-color: var(--border-light);
+}
+
+/* Dark mode: cards */
+[data-theme="dark"] .card,
+[data-theme="dark"] .salon-card {
+  background: var(--bg-card);
+  border-color: var(--border-light);
+}
+
+/* Dark mode: inputs */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: var(--bg-secondary);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Dark mode: landing panel */
+[data-theme="dark"] .landing-right  { background: #000000; }
+[data-theme="dark"] .landing-form-card { background: var(--bg-card); border-color: var(--border); }
+
+/* Dark mode: filter chips */
+[data-theme="dark"] .filter-chip {
+  background: transparent;
+  border-color: transparent;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .filter-chip:hover,
+[data-theme="dark"] .filter-chip.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+/* Dark mode: footer */
+[data-theme="dark"] .footer {
+  background: #000000;
+  border-top: 1px solid var(--border-light);
+}
+
+/* Dark mode: search bar */
+[data-theme="dark"] .search-bar {
+  background: transparent;
+  border-color: #555555;
+}
+[data-theme="dark"] .search-bar input::placeholder {
+  color: #ffffff;
+  opacity: 0.8;
+}
+
+/* Dark mode: sort select */
+[data-theme="dark"] .sort-select {
+  background: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+[data-theme="dark"] .sort-select option {
+  background: var(--bg-card);
+  color: #ffffff;
+}
+
+/* Dark mode: profile dropdown */
+[data-theme="dark"] .profile-dropdown {
+  background: #000000;
+  border-color: #ffffff;
+}
+[data-theme="dark"] .profile-dropdown-item {
+  color: #ffffff;
+}
+[data-theme="dark"] .profile-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode: secondary buttons hover */
+[data-theme="dark"] .btn-secondary:hover {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Dark mode: primary buttons */
+[data-theme="dark"] .btn-primary {
+  background: transparent;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+[data-theme="dark"] .btn-primary:hover {
+  background: #ffffff;
+  color: #000000;
+}
+[data-theme="dark"] .btn-primary:disabled {
+  background: transparent;
+  border-color: #555555;
+  color: #555555;
+}
+
+/* Dark mode: profile header card */
+[data-theme="dark"] .profile-header-card {
+  background: transparent;
+  border-color: #ffffff;
+}
+[data-theme="dark"] .profile-header-card .profile-email,
+[data-theme="dark"] .profile-header-card .profile-stat-label {
+  color: #cccccc;
+}
+[data-theme="dark"] .profile-avatar {
+  background: transparent;
+  border: 1px solid #555555;
+}
+
+/* Dark mode: info card & map */
+[data-theme="dark"] .info-card {
+  background: transparent;
+  border-color: #ffffff;
+}
+[data-theme="dark"] .salon-map-placeholder {
+  background: transparent;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+}
+/* Dark mode: booking flow */
+[data-theme="dark"] .service-option,
+[data-theme="dark"] .time-slot {
+  background: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+[data-theme="dark"] .slot-day-num {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+[data-theme="dark"] .service-option:hover,
+[data-theme="dark"] .service-option.selected,
+[data-theme="dark"] .time-slot:hover,
+[data-theme="dark"] .time-slot.selected,
+[data-theme="dark"] .slot-day-num:hover,
+[data-theme="dark"] .slot-day-num.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: #ffffff;
+}
+[data-theme="dark"] .service-option:hover .service-option-meta,
+[data-theme="dark"] .service-option.selected .service-option-meta {
+  color: rgba(255, 255, 255, 0.7);
+}
+[data-theme="dark"] .services-table tr:hover td {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode: booking steps */
+[data-theme="dark"] .booking-step-circle.active {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.15);
+}
+[data-theme="dark"] .booking-step-circle.done {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+}
+[data-theme="dark"] .form-input:focus {
+  background: transparent;
+  border-color: #ffffff;
 }
 
 #root {
@@ -1685,7 +1896,7 @@ p { font-family: var(--font-mono); }
    FOOTER
    ============================================ */
 .footer {
-  background: #1A0A10;
+  background: #000000;
   color: rgba(255,255,255,0.7);
   padding: 48px 24px 24px;
   margin-top: auto;
@@ -2067,18 +2278,38 @@ p { font-family: var(--font-mono); }
   color: var(--text-light);
 }
 
-/* Map placeholder */
-.map-placeholder {
-  background: linear-gradient(135deg, #f0e8e8, #e8dde8);
+/* Info Card */
+.info-card {
+  background: white;
   border-radius: var(--radius-lg);
-  height: 400px;
+  border: 1px solid var(--border-light);
+}
+
+/* Salon Map Placeholder */
+.salon-map-placeholder {
+  height: 140px;
+  background: linear-gradient(135deg, #f0e8e8, #e8dde8);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 13px;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
+}
+
+/* Sort Select */
+.sort-select {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  background: white;
+  outline: none;
+  color: var(--text);
 }
 
 /* Verified Badge */

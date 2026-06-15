@@ -1,12 +1,10 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
-// Mock users
+// Placeholder user — replace with real DB calls later
 const MOCK_USERS = [
-  { email: 'priya@gmail.com', password: 'priya123', name: 'Priya Reddy', phone: '98480 12345', avatar: '👩', memberSince: 'January 2026' },
-  { email: 'kavitha@gmail.com', password: 'kavi123', name: 'Kavitha M.', phone: '90000 54321', avatar: '💁‍♀️', memberSince: 'March 2026' },
-  { email: 'demo@glowmap.in', password: 'demo', name: 'Ananya Sharma', phone: '91234 56789', avatar: '🌸', memberSince: 'June 2026' },
+  { email: 'SMN@gmail.com', password: 'password', name: 'SMN', phone: '', avatar: '🌺', memberSince: 'June 2026' },
 ];
 
 export function AuthProvider({ children }) {
@@ -30,13 +28,34 @@ export function AuthProvider({ children }) {
     return { success: false, error: 'Invalid email or password' };
   };
 
+  const register = (name, email, password) => {
+    // Check if email already taken
+    const exists = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (exists) {
+      return { success: false, error: 'An account with this email already exists.' };
+    }
+    if (password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters.' };
+    }
+    // Create the new user
+    const now = new Date();
+    const monthYear = now.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+    const newUser = { email, password, name, phone: '', avatar: '🌺', memberSince: monthYear };
+    MOCK_USERS.push(newUser);
+    // Log them in immediately
+    const { password: _, ...safeUser } = newUser;
+    setUser(safeUser);
+    localStorage.setItem('glowmap_user', JSON.stringify(safeUser));
+    return { success: true, user: safeUser };
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('glowmap_user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
