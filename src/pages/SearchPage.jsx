@@ -189,20 +189,7 @@ export default function SearchPage() {
           </div>
         </div>
 
-        {/* Toggles */}
-        <div className="filter-section">
-          <div className="filter-title">Options</div>
 
-          <div className="filter-toggle" onClick={() => setFilters(p => ({ ...p, openNow: !p.openNow }))}>
-            <span style={{ fontSize: 13, color: 'var(--text)', cursor: 'pointer' }}>Open Now</span>
-            <div className={`toggle-switch ${filters.openNow ? 'on' : ''}`} id="toggle-open-now"></div>
-          </div>
-
-          <div className="filter-toggle" onClick={() => setFilters(p => ({ ...p, walkins: !p.walkins }))}>
-            <span style={{ fontSize: 13, color: 'var(--text)', cursor: 'pointer' }}>Walk-ins Welcome</span>
-            <div className={`toggle-switch ${filters.walkins ? 'on' : ''}`} id="toggle-walkins"></div>
-          </div>
-        </div>
       </aside>
 
       {/* ==================

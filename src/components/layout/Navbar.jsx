@@ -99,7 +99,7 @@ export default function Navbar() {
         <div className="navbar-cta" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
           {/* Bird theme toggle */}
           <BirdThemeToggle />
-          {user && ['/home', '/search'].includes(location.pathname) && (
+          {user && user.role !== 'owner' && ['/home', '/search'].includes(location.pathname) && (
             <button
               onClick={() => navigate('/ai-match')}
               className="btn-secondary"
@@ -140,13 +140,22 @@ export default function Navbar() {
                       </div>
                     </div>
                     <div className="profile-dropdown-divider" />
-                    <button
-                      onClick={() => { navigate('/profile'); setProfileOpen(false); }}
-                      className="profile-dropdown-item"
-                      id="goto-profile"
-                    >
-                      <User size={13} /> My Profile & Bookings
-                    </button>
+                    {user.role === 'owner' ? (
+                      <button
+                        onClick={() => { navigate('/dashboard'); setProfileOpen(false); }}
+                        className="profile-dropdown-item"
+                      >
+                        <User size={13} /> Dashboard
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => { navigate('/profile'); setProfileOpen(false); }}
+                        className="profile-dropdown-item"
+                        id="goto-profile"
+                      >
+                        <User size={13} /> My Profile & Bookings
+                      </button>
+                    )}
 
                     <div className="profile-dropdown-divider" />
                     <button

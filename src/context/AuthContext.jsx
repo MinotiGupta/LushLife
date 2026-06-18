@@ -4,7 +4,8 @@ const AuthContext = createContext(null);
 
 // Placeholder user — replace with real DB calls later
 const MOCK_USERS = [
-  { email: 'SMN@gmail.com', password: 'password', name: 'SMN', phone: '', avatar: '🌺', memberSince: 'June 2026' },
+  { email: 'SMN@gmail.com', password: 'password', name: 'SMN', phone: '', avatar: '🌺', memberSince: 'June 2026', role: 'customer' },
+  { email: 'owner@studio9.com', password: 'password', name: 'Studio 9 Owner', phone: '', avatar: '🏢', memberSince: 'June 2026', role: 'owner' },
 ];
 
 export function AuthProvider({ children }) {

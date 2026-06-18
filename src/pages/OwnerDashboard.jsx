@@ -1,53 +1,72 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SALONS } from '../data/salons.js';
-import { LayoutDashboard, CalendarDays, TrendingUp, Zap, Plus, Edit, Eye } from 'lucide-react';
-
-// Seed bookings for Studio 9 demo
-const DEMO_BOOKINGS = [
-  { id: 'GLW-HYD-41201', customer: 'Priya Reddy', service: 'Bridal Makeup (Full Package)', stylist: 'Meenakshi R.', time: '10:00 AM', status: 'confirmed', amount: 28000 },
-  { id: 'GLW-HYD-41202', customer: 'Kavitha M.', service: 'Silk Saree Updo', stylist: 'Meenakshi R.', time: '2:00 PM', status: 'confirmed', amount: 3500 },
-  { id: 'GLW-HYD-41203', customer: 'Ananya B.', service: 'HD Facial + Cleanup', stylist: 'Anjali S.', time: '11:00 AM', status: 'completed', amount: 2200 },
-  { id: 'GLW-HYD-41204', customer: 'Trisha P.', service: 'Advanced Balayage', stylist: 'Priya K.', time: '3:00 PM', status: 'pending', amount: 7500 },
-  { id: 'GLW-HYD-41205', customer: 'Divya L.', service: 'Hair Cut + Blow Dry', stylist: 'Priya K.', time: '5:00 PM', status: 'confirmed', amount: 800 },
-  { id: 'GLW-HYD-41206', customer: 'Sunita R.', service: 'Keratin Treatment', stylist: 'Anjali S.', time: '6:30 PM', status: 'pending', amount: 5500 },
-];
-
-const STATS = [
-  { label: "Today's Bookings", value: 6, sub: '↑ 2 from yesterday', icon: '📅' },
-  { label: "Revenue Today", value: '₹47,500', sub: '↑ 32% vs last week', icon: '💰' },
-  { label: 'Avg Rating', value: '4.8 ★', sub: 'Based on 312 reviews', icon: '⭐' },
-  { label: 'Profile Views', value: '284', sub: 'This week on GlowMap', icon: '👁️' },
-];
-
-const AI_INSIGHTS = [
-  {
-    title: 'Your Sunday afternoon slots are unfilled — consider a last-minute deal',
-    action: 'Create Deal',
-    applied: false,
-  },
-  {
-    title: '"Bridal Makeup" is trending in Banjara Hills this week. Your listing ranks #1 — boost it!',
-    action: 'Boost Listing',
-    applied: false,
-  },
-  {
-    title: 'You\'ve had 3 cancellations this month on Mondays — consider a Monday-only discount',
-    action: 'Create Monday Offer',
-    applied: false,
-  },
-];
+import { LayoutDashboard, CalendarDays, TrendingUp, Zap, Plus, Edit, Eye, User, Phone } from 'lucide-react';
 
 export default function OwnerDashboard() {
   const navigate = useNavigate();
-  const salon = SALONS[0]; // Studio 9 as demo owner
-  const [activeInsight, setActiveInsight] = useState(0);
-  const [appliedInsights, setAppliedInsights] = useState({});
-  const [activeTab, setActiveTab] = useState('bookings');
+  const [activeTab, setActiveTab] = useState('profile');
+  const [salon, setSalon] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [updatingPhone, setUpdatingPhone] = useState(false);
 
-  const handleApplyInsight = (i) => {
-    setAppliedInsights(prev => ({ ...prev, [i]: true }));
+  useEffect(() => {
+    const fetchSalon = async () => {
+      try {
+        const res = await fetch('/api/salons');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.length > 0) {
+            const currentSalon = data[0];
+            setSalon(currentSalon);
+            setPhoneInput(currentSalon.phone || '');
+
+            // Fetch bookings
+            const bookingsRes = await fetch('/api/owner/bookings', {
+              headers: { 'Authorization': `Bearer ${currentSalon.owner_id}` }
+            });
+            if (bookingsRes.ok) {
+              const bookingsData = await bookingsRes.json();
+              setBookings(bookingsData);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSalon();
+  }, []);
+
+
+
+  const handleUpdatePhone = async () => {
+    setUpdatingPhone(true);
+    try {
+      const res = await fetch('/api/owner/phone', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${salon.owner_id}`
+        },
+        body: JSON.stringify({ phone: phoneInput })
+      });
+      if (res.ok) {
+        setSalon(prev => ({ ...prev, phone: phoneInput }));
+        alert('Phone number updated successfully!');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingPhone(false);
+    }
   };
+
+  if (loading) return <div style={{ textAlign: 'center', padding: '80px' }}>Loading Dashboard...</div>;
+  if (!salon) return <div style={{ textAlign: 'center', padding: '80px' }}>No salons found for this owner.</div>;
 
   return (
     <div>
@@ -60,11 +79,11 @@ export default function OwnerDashboard() {
             </div>
           </div>
           <div className="dashboard-greeting" style={{ color: 'white' }}>
-            Good evening, <span style={{ color: 'var(--gold-light)' }}>Studio 9</span> 👋
+            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}, <span style={{ color: 'var(--gold-light)' }}>{salon.name}</span> 👋
           </div>
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginTop: 8 }}>
-            Monday, 9 June 2026 · Your listing is live on GlowMap ·
-            <button onClick={() => navigate('/salon/salon-01')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gold-light)', textDecoration: 'underline', fontSize: 14 }}>
+            Your listing is live in {salon.locality} ·
+            <button onClick={() => navigate(`/salon/${salon._id || salon.id}`)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gold-light)', textDecoration: 'underline', fontSize: 14 }}>
               View Public Profile →
             </button>
           </p>
@@ -76,47 +95,29 @@ export default function OwnerDashboard() {
             STATS GRID
             ======================== */}
         <div className="dashboard-stats">
-          {STATS.map((stat, i) => (
-            <div key={i} className="stat-card">
-              <div style={{ fontSize: 24, marginBottom: 8 }}>{stat.icon}</div>
-              <div className="stat-card-label">{stat.label}</div>
-              <div className="stat-card-value">{stat.value}</div>
-              <div className="stat-card-sub">{stat.sub}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ========================
-            AI INSIGHT CARD
-            ======================== */}
-        <div className="ai-insight-card" style={{ marginBottom: 32 }}>
-          <div className="ai-insight-label">
-            <span>⚡</span>
-            <span>AI Insights — Powered by Claude</span>
+          <div className="stat-card">
+            <div style={{ fontSize: 24, marginBottom: 8 }}>📅</div>
+            <div className="stat-card-label">Total Bookings</div>
+            <div className="stat-card-value">{bookings.length}</div>
+            <div className="stat-card-sub">All time</div>
           </div>
-
-          <div className="ai-insight-text">
-            {AI_INSIGHTS[activeInsight].title}
+          <div className="stat-card">
+            <div style={{ fontSize: 24, marginBottom: 8 }}>💰</div>
+            <div className="stat-card-label">Revenue</div>
+            <div className="stat-card-value">₹{bookings.reduce((sum, b) => sum + (b.amount || 0), 0).toLocaleString('en-IN')}</div>
+            <div className="stat-card-sub">All time</div>
           </div>
-
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {!appliedInsights[activeInsight] ? (
-              <button
-                onClick={() => handleApplyInsight(activeInsight)}
-                className="btn-gold"
-                id="apply-insight-btn"
-              >
-                ✓ {AI_INSIGHTS[activeInsight].action}
-              </button>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 18px', background: 'rgba(22,163,74,0.2)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: 'var(--radius-full)', color: '#4ade80', fontSize: 14, fontWeight: 700 }}>
-                ✓ Applied!
-              </div>
-            )}
-            <button className="btn-secondary" style={{ color: 'rgba(255,255,255,0.7)', borderColor: 'rgba(255,255,255,0.3)' }}
-              onClick={() => setActiveInsight((activeInsight + 1) % AI_INSIGHTS.length)}>
-              Next Insight →
-            </button>
+          <div className="stat-card">
+            <div style={{ fontSize: 24, marginBottom: 8 }}>⭐</div>
+            <div className="stat-card-label">Avg Rating</div>
+            <div className="stat-card-value">{salon.rating} ★</div>
+            <div className="stat-card-sub">Based on {salon.reviews?.length || salon.reviewCount} reviews</div>
+          </div>
+          <div className="stat-card">
+            <div style={{ fontSize: 24, marginBottom: 8 }}>👁️</div>
+            <div className="stat-card-label">Profile Status</div>
+            <div className="stat-card-value">Active</div>
+            <div className="stat-card-sub">Listed in {salon.locality}</div>
           </div>
         </div>
 
@@ -125,6 +126,7 @@ export default function OwnerDashboard() {
             ======================== */}
         <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid var(--border)', marginBottom: 20 }}>
           {[
+            { id: 'profile', label: '👤 Profile Settings' },
             { id: 'bookings', label: '📅 Today\'s Bookings' },
             { id: 'services', label: '✂️ Services' },
             { id: 'analytics', label: '📊 Analytics' },
@@ -147,12 +149,44 @@ export default function OwnerDashboard() {
         </div>
 
         {/* ========================
+            PROFILE TAB
+            ======================== */}
+        {activeTab === 'profile' && (
+          <div style={{ background: 'var(--bg)', borderRadius: 'var(--radius-lg)', padding: 24, border: '1px solid var(--border)' }}>
+            <h4 style={{ fontFamily: 'var(--font-heading)', marginBottom: 24 }}>Contact Information</h4>
+            
+            <div className="form-group" style={{ maxWidth: 400 }}>
+              <label className="form-label">Phone Number</label>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <input
+                  type="tel"
+                  className="form-input"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                  placeholder="e.g. 9876543210"
+                />
+                <button 
+                  className="btn-primary" 
+                  onClick={handleUpdatePhone}
+                  disabled={updatingPhone || phoneInput === salon.phone}
+                >
+                  {updatingPhone ? 'Saving...' : 'Update'}
+                </button>
+              </div>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
+                This phone number will be displayed publicly on your salon profile page.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ========================
             BOOKINGS TABLE
             ======================== */}
         {activeTab === 'bookings' && (
           <>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-              <h4 style={{ fontFamily: 'var(--font-heading)' }}>Today's Appointments — 9 June 2026</h4>
+              <h4 style={{ fontFamily: 'var(--font-heading)' }}>Today's Appointments — {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</h4>
               <button className="btn-primary" style={{ padding: '8px 16px', fontSize: 13 }}>
                 <Plus size={14} /> Add Slot
               </button>
@@ -172,25 +206,32 @@ export default function OwnerDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {DEMO_BOOKINGS.map(b => (
-                    <tr key={b.id}>
-                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>{b.id}</td>
-                      <td style={{ fontWeight: 600 }}>{b.customer}</td>
-                      <td style={{ maxWidth: 160 }}>{b.service}</td>
-                      <td>{b.stylist}</td>
-                      <td style={{ fontWeight: 600 }}>{b.time}</td>
-                      <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--rose)', fontWeight: 700 }}>₹{b.amount.toLocaleString('en-IN')}</td>
+                  {bookings.map(b => (
+                    <tr key={b._id || b.id}>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)' }}>{b.confirmation_id || b._id || b.id}</td>
+                      <td style={{ fontWeight: 600 }}>{b.customer_name || 'N/A'}</td>
+                      <td style={{ maxWidth: 160 }}>{b.service_id || 'N/A'}</td>
+                      <td>{b.stylist_id || 'Any Available'}</td>
+                      <td style={{ fontWeight: 600 }}>{b.slot_start ? new Date(b.slot_start).toLocaleString() : 'N/A'}</td>
+                      <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--rose)', fontWeight: 700 }}>—</td>
                       <td><span className={`status-badge ${b.status}`}>{b.status}</span></td>
                     </tr>
                   ))}
+                  {bookings.length === 0 && (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)' }}>
+                        No bookings yet.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, padding: '12px 0', borderTop: '1px solid var(--border-light)' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>6 appointments today</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>{bookings.length} appointments</span>
               <span style={{ fontWeight: 700, color: 'var(--rose)', fontFamily: 'var(--font-mono)' }}>
-                Total: ₹{DEMO_BOOKINGS.reduce((a, b) => a + b.amount, 0).toLocaleString('en-IN')}
+                Total: ₹{bookings.reduce((a, b) => a + (b.amount || 0), 0).toLocaleString('en-IN')}
               </span>
             </div>
           </>
@@ -248,10 +289,10 @@ export default function OwnerDashboard() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
               {[
-                { label: 'This Week Revenue', value: '₹1,84,000', change: '+32%', up: true },
-                { label: 'Bookings This Week', value: '28', change: '+8 vs last week', up: true },
-                { label: 'Profile Views', value: '1,240', change: '+47% from GlowMap AI', up: true },
-                { label: 'Avg Booking Value', value: '₹6,571', change: '↑ ₹800 vs last month', up: true },
+                { label: 'Total Revenue', value: `₹${bookings.reduce((sum, b) => sum + (b.amount || 0), 0).toLocaleString('en-IN')}`, change: 'Real-time', up: true },
+                { label: 'Total Bookings', value: bookings.length, change: 'Real-time', up: true },
+                { label: 'Profile Views', value: salon.review_count || 0, change: 'Based on searches', up: true },
+                { label: 'Avg Booking Value', value: bookings.length > 0 ? `₹${Math.round(bookings.reduce((sum, b) => sum + (b.amount || 0), 0) / bookings.length).toLocaleString('en-IN')}` : '₹0', change: 'Real-time', up: true },
               ].map((item, i) => (
                 <div key={i} className="stat-card">
                   <div className="stat-card-label">{item.label}</div>
@@ -262,24 +303,20 @@ export default function OwnerDashboard() {
             </div>
 
             <div style={{ background: 'var(--bg)', borderRadius: 'var(--radius-lg)', padding: 20, border: '1px solid var(--border-light)' }}>
-              <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 14 }}>Most Popular Services (This Month)</div>
-              {[
-                { name: 'Bridal Makeup (Full Package)', bookings: 14, pct: 90 },
-                { name: 'Silk Saree Updo', bookings: 22, pct: 75 },
-                { name: 'Advanced Balayage', bookings: 18, pct: 60 },
-                { name: 'Hair Cut + Blow Dry', bookings: 31, pct: 45 },
-                { name: 'HD Facial + Cleanup', bookings: 12, pct: 30 },
-              ].map((item, i) => (
+              <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 14 }}>Services Available</div>
+              {salon.services.length > 0 ? salon.services.map((svc, i) => (
                 <div key={i} style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
-                    <span style={{ fontWeight: 500 }}>{item.name}</span>
-                    <span style={{ color: 'var(--text-muted)' }}>{item.bookings} bookings</span>
+                    <span style={{ fontWeight: 500 }}>{svc.name}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>₹{svc.price}</span>
                   </div>
                   <div style={{ height: 8, background: 'var(--border)', borderRadius: 4, overflow: 'hidden' }}>
-                    <div style={{ width: `${item.pct}%`, height: '100%', background: 'var(--gradient-rose)', borderRadius: 4 }}></div>
+                    <div style={{ width: `${Math.min(100, (svc.price / 5000) * 100)}%`, height: '100%', background: 'var(--gradient-rose)', borderRadius: 4 }}></div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>No services added yet.</div>
+              )}
             </div>
           </>
         )}
