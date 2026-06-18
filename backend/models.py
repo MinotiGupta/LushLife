@@ -63,6 +63,8 @@ class Salon(BaseModel):
     embedding: List[float] = []
     price_band: str = "budget" # budget, mid, premium
     is_active: bool = True
+    opening_hours: Optional[str] = None
+    is_open_now: Optional[bool] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)

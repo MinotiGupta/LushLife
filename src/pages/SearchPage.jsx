@@ -4,7 +4,7 @@ import { getMatchColor } from '../data/salons.js';
 import SalonCard from '../components/search/SalonCard.jsx';
 import { X } from 'lucide-react';
 
-const SORT_OPTIONS = ['AI Match', 'Rating', 'Price: Low to High', 'Price: High to Low'];
+const SORT_OPTIONS = ['Rating', 'Price: Low to High', 'Price: High to Low'];
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
@@ -57,7 +57,7 @@ export default function SearchPage() {
       try {
         const queryParams = new URLSearchParams();
         filters.locality.forEach(loc => queryParams.append('locality', loc));
-        if (filters.priceBand.length > 0) queryParams.append('price_band', filters.priceBand[0]);
+        filters.priceBand.forEach(band => queryParams.append('price_band', band));
         if (searchQuery) queryParams.append('service', searchQuery);
 
         const res = await fetch(`/api/salons?${queryParams.toString()}`);
@@ -77,7 +77,7 @@ export default function SearchPage() {
               reviewCount: s.review_count || 0,
               priceFrom: pFrom,
               matchScore: 92, // Mock for now
-              openNow: s.is_active,
+              openNow: s.is_open_now,
               coverPhoto: s.photos && s.photos.length > 0 ? s.photos[0].url : 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80',
               tags: s.photos && s.photos.length > 0 ? s.photos[0].ai_tags : ['everyday', 'salon'],
               category: 'women', // Default for now
@@ -102,7 +102,6 @@ export default function SearchPage() {
     if (filters.category.length > 0 && !filters.category.includes(salon.category)) return false;
     return true;
   }).sort((a, b) => {
-    if (sort === 'AI Match') return b.matchScore - a.matchScore;
     if (sort === 'Rating') return b.rating - a.rating;
     if (sort === 'Price: Low to High') return a.priceFrom - b.priceFrom;
     if (sort === 'Price: High to Low') return b.priceFrom - a.priceFrom;

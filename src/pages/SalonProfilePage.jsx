@@ -11,8 +11,45 @@ export default function SalonProfilePage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('services');
   const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [showMatchReason, setShowMatchReason] = useState(false);
+  
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ author: '', rating: 5, text: '' });
+  const [submittingReview, setSubmittingReview] = useState(false);
 
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setSubmittingReview(true);
+    try {
+      const res = await fetch(`/api/salons/${id}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewForm)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSalon(prev => ({
+          ...prev,
+          reviews: [
+            {
+              name: data.review.author,
+              rating: data.review.rating,
+              date: data.review.time,
+              text: data.review.text,
+              verified: false,
+              profilePhoto: data.review.profile_photo
+            },
+            ...prev.reviews
+          ]
+        }));
+        setShowReviewForm(false);
+        setReviewForm({ author: '', rating: 5, text: '' });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
   useEffect(() => {
     const fetchSalon = async () => {
       try {
@@ -28,8 +65,8 @@ export default function SalonProfilePage() {
             address: `${data.locality}, Hyderabad`,
             rating: data.rating_avg || 4.0,
             reviewCount: data.review_count || 0,
-            openNow: data.is_active,
-            hours: "10:00 AM - 8:00 PM",
+            openNow: data.is_open_now,
+            hours: data.opening_hours || "Contact for hours",
             tags: data.photos && data.photos.length > 0 ? data.photos[0].ai_tags : ['salon'],
             matchScore: 92,
             matchReason: "This salon matches your 'everyday' needs perfectly with expert stylists for your profile.",
@@ -106,15 +143,17 @@ export default function SalonProfilePage() {
                 <MapPin size={14} />
                 {salon.address}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.9)', fontSize: 14 }}>
-                <Star size={14} fill="#D4AF37" color="#D4AF37" />
-                <strong>{salon.rating}</strong>
-                <span style={{ opacity: 0.7 }}>({salon.reviewCount} reviews)</span>
-              </div>
-              {salon.openNow && (
+
+              {salon.openNow === true && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#4ade80', fontSize: 14, fontWeight: 600 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }}></span>
                   Open Now · {salon.hours}
+                </div>
+              )}
+              {salon.openNow === false && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#f87171', fontSize: 14, fontWeight: 600 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f87171', display: 'inline-block' }}></span>
+                  Closed · {salon.hours}
                 </div>
               )}
             </div>
@@ -133,25 +172,7 @@ export default function SalonProfilePage() {
             {salon.tags.map(t => <span key={t} className="tag">{t}</span>)}
           </div>
 
-          {/* AI Match Explanation */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24, maxWidth: 700 }}>
-            <button
-              type="button"
-              onClick={() => setShowMatchReason(prev => !prev)}
-              className="btn-secondary"
-              style={{ alignSelf: 'flex-start' }}
-            >
-              ⚡ AI Match {salon.matchScore}%
-            </button>
-            {showMatchReason && (
-              <div style={{ background: 'var(--bg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', padding: 16 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Why this match?</div>
-                <div style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.7 }}>
-                  {salon.matchReason}
-                </div>
-              </div>
-            )}
-          </div>
+
 
 
 
@@ -204,7 +225,7 @@ export default function SalonProfilePage() {
                 }}
                 id={`tab-${tab}`}
               >
-                {tab === 'services' ? '✂️ Services' : tab === 'stylists' ? '👩‍🦱 Stylists' : '⭐ Reviews'}
+                {tab === 'services' ? ' Services' : tab === 'stylists' ? ' Stylists' : ' Reviews'}
               </button>
             ))}
           </div>
@@ -271,43 +292,37 @@ export default function SalonProfilePage() {
           {/* Reviews Tab */}
           {activeTab === 'reviews' && (
             <div>
-              {/* Rating Summary */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 24, padding: '20px', background: 'var(--bg)', borderRadius: 'var(--radius-lg)' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'var(--font-heading)', fontSize: 48, fontWeight: 700, color: 'var(--text)' }}>{salon.rating}</div>
-                  <div style={{ color: 'var(--gold)', fontSize: 20, margin: '4px 0' }}>★★★★★</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{salon.reviewCount} reviews</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)', width: 20 }}>5★</span>
-                    <div style={{ flex: 1, height: 8, background: 'var(--border)', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: '78%', height: '100%', background: 'var(--gold)', borderRadius: 4 }}></div>
-                    </div>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>78%</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)', width: 20 }}>4★</span>
-                    <div style={{ flex: 1, height: 8, background: 'var(--border)', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: '18%', height: '100%', background: '#f0c040', borderRadius: 4 }}></div>
-                    </div>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>18%</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)', width: 20 }}>3★</span>
-                    <div style={{ flex: 1, height: 8, background: 'var(--border)', borderRadius: 4, overflow: 'hidden' }}>
-                      <div style={{ width: '4%', height: '100%', background: '#d0d0d0', borderRadius: 4 }}></div>
-                    </div>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>4%</span>
-                  </div>
-                </div>
+
+
+              {/* Write Review Section */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <h3 style={{ margin: 0, fontSize: 18 }}>Customer Reviews</h3>
+                <button className="btn-secondary" onClick={() => setShowReviewForm(!showReviewForm)}>
+                  {showReviewForm ? 'Cancel' : 'Write a Review'}
+                </button>
               </div>
 
-              {/* AI Sentiment */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'var(--rose-pale)', borderRadius: 'var(--radius-full)', marginBottom: 20 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--rose)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>⚡ AI Summary:</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 13 }}>{salon.sentiment}</span>
-              </div>
+              {showReviewForm && (
+                <form onSubmit={handleReviewSubmit} style={{ background: 'var(--bg)', padding: 20, borderRadius: 'var(--radius-lg)', marginBottom: 24, border: '1px solid var(--border)' }}>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontSize: 13, fontWeight: 600 }}>Your Name</label>
+                    <input type="text" required value={reviewForm.author} onChange={e => setReviewForm({...reviewForm, author: e.target.value})} className="form-input" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text)' }} placeholder="e.g. Minoti" />
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontSize: 13, fontWeight: 600 }}>Rating</label>
+                    <select value={reviewForm.rating} onChange={e => setReviewForm({...reviewForm, rating: Number(e.target.value)})} className="form-input" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)' }}>
+                      {[5,4,3,2,1].map(num => <option key={num} value={num}>{num} Stars</option>)}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontSize: 13, fontWeight: 600 }}>Review</label>
+                    <textarea required value={reviewForm.text} onChange={e => setReviewForm({...reviewForm, text: e.target.value})} rows={4} className="form-input" style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text)', resize: 'vertical' }} placeholder="Share your experience..." />
+                  </div>
+                  <button type="submit" className="btn-primary" disabled={submittingReview}>
+                    {submittingReview ? 'Submitting...' : 'Post Review'}
+                  </button>
+                </form>
+              )}
 
               {/* Reviews */}
               {salon.reviews.map((review, i) => (

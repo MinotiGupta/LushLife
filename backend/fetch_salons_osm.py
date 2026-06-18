@@ -145,6 +145,7 @@ def transform_osm_node(element):
         "embedding": [],
         "price_band": price_band,
         "is_active": True,
+        "opening_hours": tags.get("opening_hours"),
         "phone": tags.get("phone", tags.get("contact:phone", "")),
         "address": address,
         # Mocking google reviews so the UI doesn't break

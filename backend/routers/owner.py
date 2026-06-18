@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel
 from typing import List, Optional
-from models import Booking, Service
+from models import Booking, Service, Stylist
 from database import db
 from bson import ObjectId
 
@@ -50,3 +50,35 @@ async def add_service(service: Service, owner_id: str = Depends(get_owner_id)):
 async def update_slots(owner_id: str = Depends(get_owner_id)):
     # Mock endpoint for updating slots
     return {"message": "Slots updated successfully"}
+
+@router.post("/stylists")
+async def add_stylist(stylist: Stylist, owner_id: str = Depends(get_owner_id)):
+    salon = await db.salons.find_one({"owner_id": owner_id})
+    if not salon:
+        raise HTTPException(status_code=404, detail="Salon not found for this owner")
+        
+    result = await db.salons.update_one(
+        {"_id": salon["_id"]},
+        {"$push": {"stylists": stylist.model_dump()}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to add stylist")
+        
+    return {"message": "Stylist added successfully", "stylist": stylist.model_dump()}
+
+@router.delete("/stylists/{stylist_id}")
+async def remove_stylist(stylist_id: str, owner_id: str = Depends(get_owner_id)):
+    salon = await db.salons.find_one({"owner_id": owner_id})
+    if not salon:
+        raise HTTPException(status_code=404, detail="Salon not found for this owner")
+        
+    result = await db.salons.update_one(
+        {"_id": salon["_id"]},
+        {"$pull": {"stylists": {"stylist_id": stylist_id}}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Stylist not found or already removed")
+        
+    return {"message": "Stylist removed successfully"}
