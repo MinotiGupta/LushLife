@@ -66,8 +66,8 @@ export default function LandingPage() {
         <div className="landing-left-inner">
           {/* Logo */}
           <div className="landing-logo">
-            <span className="landing-logo-icon">✨</span>
-            <span className="landing-logo-text">GlowMap</span>
+            <img src="/favicon.svg" alt="LushLife Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+            <span className="landing-logo-text">LushLife</span>
           </div>
 
           <div className="landing-tagline">
@@ -180,7 +180,7 @@ export default function LandingPage() {
             /* ====== SIGNUP FORM ====== */
             <form onSubmit={handleSignup} className="auth-form">
               <div className="auth-form-title">Create account</div>
-              <div className="auth-form-sub">Join thousands of Hyderabad women on GlowMap</div>
+              <div className="auth-form-sub">Join thousands of Hyderabad women on LushLife</div>
 
               <div className="form-group">
                 <label className="form-label" htmlFor="signup-name">Full Name</label>
@@ -251,7 +251,7 @@ export default function LandingPage() {
           )}
 
           <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-muted)', marginTop: 20, lineHeight: 1.6 }}>
-            By continuing you agree to GlowMap's Terms of Service and Privacy Policy.
+            By continuing you agree to LushLife's Terms of Service and Privacy Policy.
           </p>
         </div>
       </div>
