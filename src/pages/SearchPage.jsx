@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { SALONS, LOCALITIES, getMatchColor } from '../data/salons.js';
+import { getMatchColor } from '../data/salons.js';
 import SalonCard from '../components/search/SalonCard.jsx';
 import { X } from 'lucide-react';
 
@@ -19,7 +19,19 @@ export default function SearchPage() {
   });
   const [sort, setSort] = useState('Rating');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [salonsData, setSalonsData] = useState([]);
+  const [localities, setLocalities] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch localities from API on mount
+  useEffect(() => {
+    fetch('/api/salons/localities')
+      .then(r => r.json())
+      .then(data => setLocalities(Array.isArray(data) ? data : []))
+      .catch(() => setLocalities([]));
+  }, []);
+
+  // Sync params to state
   useEffect(() => {
     const cat = searchParams.get('category');
     const loc = searchParams.get('locality');
@@ -38,27 +50,55 @@ export default function SearchPage() {
     }
   }, [searchParams]);
 
-  const filtered = SALONS.filter(salon => {
-    if (filters.locality.length > 0 && !filters.locality.includes(salon.locality)) return false;
+  // Fetch salons from API
+  useEffect(() => {
+    const fetchSalons = async () => {
+      setLoading(true);
+      try {
+        const queryParams = new URLSearchParams();
+        filters.locality.forEach(loc => queryParams.append('locality', loc));
+        if (filters.priceBand.length > 0) queryParams.append('price_band', filters.priceBand[0]);
+        if (searchQuery) queryParams.append('service', searchQuery);
+
+        const res = await fetch(`/api/salons?${queryParams.toString()}`);
+        if (res.ok) {
+          const data = await res.json();
+          // Transform backend schema to frontend schema
+          const mappedSalons = data.map(s => {
+            let pFrom = 500;
+            if (s.price_band === 'premium') pFrom = 3000;
+            else if (s.price_band === 'mid') pFrom = 1500;
+            
+            return {
+              id: s._id || s.id,
+              name: s.name,
+              locality: s.locality,
+              rating: s.rating_avg || 4.0,
+              reviewCount: s.review_count || 0,
+              priceFrom: pFrom,
+              matchScore: 92, // Mock for now
+              openNow: s.is_active,
+              coverPhoto: s.photos && s.photos.length > 0 ? s.photos[0].url : 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80',
+              tags: s.photos && s.photos.length > 0 ? s.photos[0].ai_tags : ['everyday', 'salon'],
+              category: 'women', // Default for now
+              services: s.services || []
+            };
+          });
+          setSalonsData(mappedSalons);
+        }
+      } catch (err) {
+        console.error("Failed to fetch salons", err);
+      }
+      setLoading(false);
+    };
+
+    fetchSalons();
+  }, [filters.locality, filters.priceBand, searchQuery]);
+
+  // Local filtering for things not handled by backend
+  const filtered = salonsData.filter(salon => {
     if (filters.openNow && !salon.openNow) return false;
     if (filters.walkins && !salon.tags.some(t => t.toLowerCase().includes('walk'))) return false;
-    if (filters.priceBand.length > 0) {
-      const matchPrice = filters.priceBand.some(band => {
-        if (band === 'budget' && salon.priceFrom <= 999) return true;
-        if (band === 'mid' && salon.priceFrom >= 1000 && salon.priceFrom <= 2999) return true;
-        if (band === 'premium' && salon.priceFrom >= 3000) return true;
-        return false;
-      });
-      if (!matchPrice) return false;
-    }
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchName = salon.name.toLowerCase().includes(q);
-      const matchLocality = salon.locality.toLowerCase().includes(q);
-      const matchService = salon.services.some(s => s.name.toLowerCase().includes(q));
-      const matchTag = salon.tags.some(t => t.toLowerCase().includes(q));
-      if (!matchName && !matchLocality && !matchService && !matchTag) return false;
-    }
     if (filters.category.length > 0 && !filters.category.includes(salon.category)) return false;
     return true;
   }).sort((a, b) => {
@@ -102,12 +142,14 @@ export default function SearchPage() {
         <div className="filter-section">
           <div className="filter-title">Locality</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0 }}>
-            {LOCALITIES.map(loc => (
+            {localities.length === 0 ? (
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Loading...</span>
+            ) : localities.map(loc => (
               <button
                 key={loc}
                 className={`filter-chip ${filters.locality.includes(loc) ? 'active' : ''}`}
                 onClick={() => setArrayFilter('locality', loc)}
-                id={`filter-loc-${loc.replace(' ', '-')}`}
+                id={`filter-loc-${loc.replace(/ /g, '-')}`}
               >
                 {loc}
               </button>

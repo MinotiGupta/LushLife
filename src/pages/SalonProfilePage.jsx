@@ -1,17 +1,74 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSalonById } from '../data/salons.js';
 import FloatingChatbot from '../components/home/FloatingChatbot.jsx';
 import { MapPin, Star, Clock, Phone, MessageCircle, Send, ChevronDown, ExternalLink, Check } from 'lucide-react';
 
 export default function SalonProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const salon = getSalonById(id);
 
+  const [salon, setSalon] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('services');
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [showMatchReason, setShowMatchReason] = useState(false);
+
+  useEffect(() => {
+    const fetchSalon = async () => {
+      try {
+        const res = await fetch(`/api/salons/${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSalon({
+            id: data._id || data.id,
+            name: data.name,
+            locality: data.locality,
+            description: data.description,
+            coverPhoto: data.photos && data.photos.length > 0 ? data.photos[0].url : 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80',
+            address: `${data.locality}, Hyderabad`,
+            rating: data.rating_avg || 4.0,
+            reviewCount: data.review_count || 0,
+            openNow: data.is_active,
+            hours: "10:00 AM - 8:00 PM",
+            tags: data.photos && data.photos.length > 0 ? data.photos[0].ai_tags : ['salon'],
+            matchScore: 92,
+            matchReason: "This salon matches your 'everyday' needs perfectly with expert stylists for your profile.",
+            phone: data.phone || "N/A",
+            sentiment: data.sentiment_summary || "clean, professional, quick",
+            address: data.address || `${data.locality}, Hyderabad`,
+            photos: (data.photos || []).map(p => ({ url: p.url, tags: p.ai_tags || [] })),
+            services: (data.services || []).map(s => ({
+              name: s.name,
+              duration: `${s.duration_min} mins`,
+              price: s.price
+            })),
+            stylists: (data.stylists || []).map(st => ({
+              emoji: "👩‍🦱",
+              name: st.name,
+              specialty: st.bio || "Stylist"
+            })),
+            reviews: (data.google_reviews || []).map(r => ({
+              name: r.author || "Anonymous",
+              rating: r.rating || 5,
+              date: r.time || "recently",
+              text: r.text || "Great experience!",
+              verified: true,
+              profilePhoto: r.profile_photo || ""
+            }))
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch salon profile", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSalon();
+  }, [id]);
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '80px 24px' }}><h2>Loading...</h2></div>;
+  }
 
   if (!salon) {
     return (
