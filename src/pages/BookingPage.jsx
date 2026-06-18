@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { getSalonById } from '../data/salons.js';
-import { addBooking } from '../data/bookings.js';
 import { Check, ChevronRight } from 'lucide-react';
+import { addBooking } from '../data/bookings.js';
 
 const STEP_LABELS = ['Service', 'Stylist', 'Date & Time', 'Confirm'];
 
@@ -46,13 +45,14 @@ export default function BookingPage() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const salon = getSalonById(id);
-
   const preSelectedService = searchParams.get('service');
+
+  const [salon, setSalon] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [step, setStep] = useState(0);
   const [booking, setBooking] = useState({
-    service: preSelectedService ? salon?.services.find(s => s.name === preSelectedService) : null,
+    service: null,
     stylist: undefined,
     day: 0,
     time: null,
@@ -65,19 +65,48 @@ export default function BookingPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    const fetchSalon = async () => {
+      try {
+        const res = await fetch(`/api/salons/${id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSalon({
+            id: data._id || data.id,
+            name: data.name,
+            locality: data.locality,
+            address: data.address || `${data.locality}, Hyderabad`,
+            coverPhoto: data.photos && data.photos.length > 0 ? data.photos[0].url : 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80',
+            rating: data.rating_avg || 4.0,
+            services: data.services || [],
+            stylists: data.stylists || [],
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSalon();
+  }, [id]);
 
   useEffect(() => {
-    if (preSelectedService && salon) {
+    if (preSelectedService && salon && salon.services) {
       const svc = salon.services.find(s => s.name === preSelectedService);
-      if (svc) {
+      if (svc && !booking.service) {
         setBooking(prev => ({ ...prev, service: svc }));
         setStep(1); // Skip to stylist selection
       }
     }
-  }, []);
+  }, [preSelectedService, salon, booking.service]);
 
-  if (!salon) return null;
+  if (loading) return <div style={{ textAlign: 'center', padding: '80px 24px' }}><h2>Loading...</h2></div>;
+  if (!salon) return (
+    <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+      <h2>Salon not found</h2>
+      <button onClick={() => navigate('/search')} className="btn-primary" style={{ marginTop: 16 }}>Back to Search</button>
+    </div>
+  );
 
   const handleConfirm = () => {
     const id = generateBookingId();

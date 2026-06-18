@@ -72,6 +72,7 @@ export default function SalonProfilePage() {
             matchReason: "This salon matches your 'everyday' needs perfectly with expert stylists for your profile.",
             phone: data.phone || "N/A",
             sentiment: data.sentiment_summary || "clean, professional, quick",
+            coordinates: data.location?.coordinates || null,
             address: data.address || `${data.locality}, Hyderabad`,
             photos: (data.photos || []).map(p => ({ url: p.url, tags: p.ai_tags || [] })),
             services: (data.services || []).map(s => ({
@@ -367,10 +368,17 @@ export default function SalonProfilePage() {
             </div>
 
             {/* Map Embed Placeholder */}
-            <div className="salon-map-placeholder" style={{ marginTop: 16 }}>
-              <span style={{ fontSize: 28 }}>🗺️</span>
-              <span>{salon.locality}, Hyderabad</span>
-            </div>
+            <a 
+              href={salon.coordinates ? `https://www.google.com/maps/dir/?api=1&destination=${salon.coordinates[1]},${salon.coordinates[0]}` : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(salon.address)}`}
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <div className="salon-map-placeholder" style={{ marginTop: 16, cursor: 'pointer', transition: 'transform 0.2s ease' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                <span style={{ fontSize: 28 }}>🗺️</span>
+                <span>Get Directions</span>
+              </div>
+            </a>
           </div>
 
 

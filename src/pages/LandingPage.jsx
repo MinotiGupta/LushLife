@@ -8,11 +8,16 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (user) {
-      navigate('/search', { replace: true });
+      if (user.role === 'owner') {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/search', { replace: true });
+      }
     }
   }, [user, navigate]);
 
   const [mode, setMode] = useState('login'); // login | signup
+  const [loginType, setLoginType] = useState('customer'); // customer | owner
   // Login form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +38,11 @@ export default function LandingPage() {
     const result = login(email, password);
     setLoading(false);
     if (result.success) {
-      navigate('/search', { replace: true });
+      if (result.user.role === 'owner') {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/search', { replace: true });
+      }
     } else {
       setError(result.error);
     }
@@ -135,13 +144,25 @@ export default function LandingPage() {
               <div className="auth-form-title">Welcome back</div>
               <div className="auth-form-sub">Sign in to view bookings & get AI matches</div>
 
+              {/* Login Type Toggle */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+                  <input type="radio" name="loginType" value="customer" checked={loginType === 'customer'} onChange={() => { setLoginType('customer'); setEmail('SMN@gmail.com'); }} />
+                  Customer
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+                  <input type="radio" name="loginType" value="owner" checked={loginType === 'owner'} onChange={() => { setLoginType('owner'); setEmail('owner@studio9.com'); }} />
+                  Salon Owner
+                </label>
+              </div>
+
               <div className="form-group">
                 <label className="form-label" htmlFor="login-email">Email</label>
                 <input
                   id="login-email"
                   type="email"
                   className="form-input"
-                  placeholder="your@email.com"
+                  placeholder={loginType === 'owner' ? "owner@salon.com" : "your@email.com"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
