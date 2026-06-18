@@ -20,7 +20,7 @@ export default function Footer() {
             <div className="footer-col-title">Discover</div>
             <ul>
               <li><Link to="/search">All Salons</Link></li>
-              <li><Link to="/search?service=bridal">Bridal Salons</Link></li>
+
               <li><Link to="/search?locality=Banjara Hills">Banjara Hills</Link></li>
               <li><Link to="/search?locality=Gachibowli">Gachibowli</Link></li>
               <li><Link to="/search?locality=Jubilee Hills">Jubilee Hills</Link></li>

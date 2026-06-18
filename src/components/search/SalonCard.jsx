@@ -20,18 +20,14 @@ function SalonCard({ salon, showMatch = true }) {
         />
 
         {/* Open/Closed badge */}
-        {salon.openNow && (
+        {salon.openNow === true && (
           <div className="salon-card-open">Open Now</div>
         )}
-
-        {/* AI Match Badge */}
-        {showMatch && (
-          <div className="salon-card-match">
-            <div className={`ai-badge ${matchColor}`} style={{ fontSize: 12, padding: '4px 10px' }}>
-              {salon.computedScore || salon.matchScore}% Match
-            </div>
-          </div>
+        {salon.openNow === false && (
+          <div className="salon-card-open" style={{ background: 'var(--rose)', color: 'white' }}>Closed</div>
         )}
+
+
       </div>
 
       {/* Body */}
@@ -43,13 +39,7 @@ function SalonCard({ salon, showMatch = true }) {
         </div>
 
         <div className="salon-card-meta">
-          <div className="salon-card-rating">
-            <span style={{ color: 'var(--gold)' }}>★</span>
-            <span>{salon.rating}</span>
-            <span style={{ color: 'var(--text-muted)', fontWeight: 400, fontSize: 12 }}>
-              ({salon.reviewCount})
-            </span>
-          </div>
+
           <div className="salon-card-price">
             From <strong>₹{salon.priceFrom.toLocaleString('en-IN')}</strong>
           </div>
