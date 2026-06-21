@@ -12,25 +12,38 @@ export default function OwnerDashboard() {
   const [updatingPhone, setUpdatingPhone] = useState(false);
 
   useEffect(() => {
-    const fetchSalon = async () => {
+    const loadDashboard = async () => {
       try {
-        const res = await fetch('/api/salons');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.length > 0) {
-            const currentSalon = data[0];
-            setSalon(currentSalon);
-            setPhoneInput(currentSalon.phone || '');
+        const { SALONS } = await import('../data/salons.js');
+        const { MOCK_BOOKINGS } = await import('../data/bookings.js');
+        
+        if (SALONS.length > 0) {
+          const currentSalon = SALONS[0]; // Just use first salon as mock owner
+          setSalon(currentSalon);
+          setPhoneInput(currentSalon.phone || '');
 
-            // Fetch bookings
-            const bookingsRes = await fetch('/api/owner/bookings', {
-              headers: { 'Authorization': `Bearer ${currentSalon.owner_id}` }
+          // Find bookings for this salon from all mock users
+          const salonBookings = [];
+          for (const [email, userBookings] of Object.entries(MOCK_BOOKINGS)) {
+            userBookings.forEach(b => {
+              if (b.salonId === currentSalon.id) {
+                salonBookings.push({
+                  id: b.id,
+                  customer_name: email,
+                  service_name: b.service,
+                  stylist_name: b.stylist,
+                  date: b.date,
+                  time: b.time,
+                  status: b.status,
+                  amount: b.amount
+                });
+              }
             });
-            if (bookingsRes.ok) {
-              const bookingsData = await bookingsRes.json();
-              setBookings(bookingsData);
-            }
           }
+          // Sort by date (mock simplistic sort: upcoming first, then recent)
+          salonBookings.sort((a, b) => (a.status === 'upcoming' ? -1 : 1));
+          
+          setBookings(salonBookings);
         }
       } catch (err) {
         console.error(err);
@@ -38,31 +51,19 @@ export default function OwnerDashboard() {
         setLoading(false);
       }
     };
-    fetchSalon();
+    loadDashboard();
   }, []);
 
 
 
   const handleUpdatePhone = async () => {
     setUpdatingPhone(true);
-    try {
-      const res = await fetch('/api/owner/phone', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${salon.owner_id}`
-        },
-        body: JSON.stringify({ phone: phoneInput })
-      });
-      if (res.ok) {
-        setSalon(prev => ({ ...prev, phone: phoneInput }));
-        alert('Phone number updated successfully!');
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
+    // Mock phone update
+    setTimeout(() => {
+      setSalon(prev => ({ ...prev, phone: phoneInput }));
+      alert('Phone number updated successfully (Mock)!');
       setUpdatingPhone(false);
-    }
+    }, 600);
   };
 
   if (loading) return <div style={{ textAlign: 'center', padding: '80px' }}>Loading Dashboard...</div>;

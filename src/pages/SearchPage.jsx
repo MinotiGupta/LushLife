@@ -23,12 +23,11 @@ export default function SearchPage() {
   const [localities, setLocalities] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch localities from API on mount
+  // Load localities from mock data
   useEffect(() => {
-    fetch('/api/salons/localities')
-      .then(r => r.json())
-      .then(data => setLocalities(Array.isArray(data) ? data : []))
-      .catch(() => setLocalities([]));
+    import('../data/salons.js').then(module => {
+      setLocalities(module.LOCALITIES);
+    });
   }, []);
 
   // Sync params to state
@@ -50,49 +49,42 @@ export default function SearchPage() {
     }
   }, [searchParams]);
 
-  // Fetch salons from API
+  // Load salons from mock data and apply search query & basic filters
   useEffect(() => {
-    const fetchSalons = async () => {
+    const loadSalons = async () => {
       setLoading(true);
       try {
-        const queryParams = new URLSearchParams();
-        filters.locality.forEach(loc => queryParams.append('locality', loc));
-        filters.priceBand.forEach(band => queryParams.append('price_band', band));
-        if (searchQuery) queryParams.append('service', searchQuery);
+        const { SALONS } = await import('../data/salons.js');
+        let data = SALONS;
 
-        const res = await fetch(`/api/salons?${queryParams.toString()}`);
-        if (res.ok) {
-          const data = await res.json();
-          // Transform backend schema to frontend schema
-          const mappedSalons = data.map(s => {
-            let pFrom = 500;
-            if (s.price_band === 'premium') pFrom = 3000;
-            else if (s.price_band === 'mid') pFrom = 1500;
-            
-            return {
-              id: s._id || s.id,
-              name: s.name,
-              locality: s.locality,
-              rating: s.rating_avg || 4.0,
-              reviewCount: s.review_count || 0,
-              priceFrom: pFrom,
-              matchScore: 92, // Mock for now
-              openNow: s.is_open_now,
-              coverPhoto: s.photos && s.photos.length > 0 ? s.photos[0].url : 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80',
-              tags: s.photos && s.photos.length > 0 ? s.photos[0].ai_tags : ['everyday', 'salon'],
-              category: 'women', // Default for now
-              services: s.services || []
-            };
-          });
-          setSalonsData(mappedSalons);
+        // Apply locality filter
+        if (filters.locality.length > 0) {
+          data = data.filter(salon => filters.locality.includes(salon.locality));
         }
+
+        // Apply price band filter
+        if (filters.priceBand.length > 0) {
+          data = data.filter(salon => filters.priceBand.includes(salon.priceBand));
+        }
+
+        // Apply search query
+        if (searchQuery) {
+          const lowerQ = searchQuery.toLowerCase();
+          data = data.filter(salon => 
+            salon.name.toLowerCase().includes(lowerQ) ||
+            salon.locality.toLowerCase().includes(lowerQ) ||
+            salon.services.some(svc => svc.name.toLowerCase().includes(lowerQ))
+          );
+        }
+
+        setSalonsData(data);
       } catch (err) {
-        console.error("Failed to fetch salons", err);
+        console.error("Failed to load mock salons", err);
       }
       setLoading(false);
     };
 
-    fetchSalons();
+    loadSalons();
   }, [filters.locality, filters.priceBand, searchQuery]);
 
   // Local filtering for things not handled by backend

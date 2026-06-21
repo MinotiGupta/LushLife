@@ -104,13 +104,7 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Testimonial */}
-          <div className="landing-testimonial">
-            <div className="landing-testimonial-text">
-              "Found my bridal salon in 2 minutes. The AI quiz actually understood what I needed."
-            </div>
-            <div className="landing-testimonial-author">— Priya R., Banjara Hills bride 2026</div>
-          </div>
+
         </div>
       </div>
 
