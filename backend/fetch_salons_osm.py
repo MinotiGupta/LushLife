@@ -16,7 +16,18 @@ import asyncio
 import requests
 import uuid
 import random
-from database import db, client
+import os
+import certifi
+from dotenv import load_dotenv
+from motor.motor_asyncio import AsyncIOMotorClient
+
+load_dotenv()
+MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+
+def get_db():
+    """Create a fresh motor client for this script run."""
+    c = AsyncIOMotorClient(MONGO_URL, tlsCAFile=certifi.where())
+    return c, c.lushlife
 
 # ── Config ──────────────────────────────────────────────
 # Overpass API endpoint
@@ -173,7 +184,6 @@ async def fetch_and_seed():
     if response.status_code != 200:
         print(f"Failed to fetch data. Status Code: {response.status_code}")
         print(f"Response: {response.text}")
-        client.close()
         return
 
     data = response.json()
@@ -192,19 +202,22 @@ async def fetch_and_seed():
 
     if not all_salons:
         print("No named salons found.")
-        client.close()
         return
 
     print(f"Successfully processed {len(all_salons)} named salons.")
     
-    print("\nDropping old salons collection...")
-    await db.salons.drop()
-    
-    print(f"Inserting {len(all_salons)} real OSM salons...")
-    await db.salons.insert_many(all_salons)
-    
-    print(f"Done! Seeded {len(all_salons)} real salons.")
-    client.close()
+    # Create a dedicated motor client for this script (avoids event loop conflicts)
+    mongo_client, db = get_db()
+    try:
+        print("\nDropping old salons collection...")
+        await db.salons.drop()
+        
+        print(f"Inserting {len(all_salons)} real OSM salons...")
+        await db.salons.insert_many(all_salons)
+        
+        print(f"Done! Seeded {len(all_salons)} real salons.")
+    finally:
+        mongo_client.close()
 
 if __name__ == "__main__":
     asyncio.run(fetch_and_seed())

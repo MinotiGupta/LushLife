@@ -32,7 +32,7 @@ class ReviewSubmit(BaseModel):
 
 router = APIRouter(prefix="/api/salons", tags=["salons"])
 
-@router.get("/", response_model=List[Salon])
+@router.get("", response_model=List[Salon])
 async def get_salons(
     locality: Optional[List[str]] = Query(None),
     service: Optional[str] = None,
