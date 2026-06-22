@@ -14,7 +14,10 @@
   display: flex;
   align-items: center;
 }
-.bird-toggle:hover { background: var(--bg-secondary, #f3f3f3); }
+
+.bird-toggle:hover {
+  background: var(--bg-secondary, #f3f3f3);
+}
 
 /* Scene stage: 72 × 38 px */
 .bird-scene {
@@ -35,6 +38,7 @@
   flex-direction: column;
   align-items: center;
 }
+
 .candle-body {
   width: 8px;
   height: 16px;
@@ -42,6 +46,7 @@
   border-radius: 2px 2px 1px 1px;
   border: 1px solid #c9a96e;
 }
+
 .candle-wick {
   width: 1.5px;
   height: 5px;
@@ -64,6 +69,7 @@
   animation: flameWaver 1.2s ease-in-out infinite alternate;
   transition: opacity 0.2s;
 }
+
 .candle-flame::before {
   content: '';
   position: absolute;
@@ -72,6 +78,7 @@
   border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
   filter: blur(0.5px);
 }
+
 .flame-inner {
   position: absolute;
   bottom: 2px;
@@ -82,33 +89,84 @@
   background: radial-gradient(ellipse, #fff9c4 0%, #ffe066 100%);
   border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
 }
+
 @keyframes flameWaver {
-  0%   { transform: translateX(-50%) scaleX(1)   scaleY(1)    rotate(-2deg); }
-  33%  { transform: translateX(-50%) scaleX(0.9) scaleY(1.08) rotate( 2deg); }
-  66%  { transform: translateX(-50%) scaleX(1.1) scaleY(0.95) rotate(-1deg); }
-  100% { transform: translateX(-50%) scaleX(1)   scaleY(1.05) rotate( 1deg); }
+  0% {
+    transform: translateX(-50%) scaleX(1) scaleY(1) rotate(-2deg);
+  }
+
+  33% {
+    transform: translateX(-50%) scaleX(0.9) scaleY(1.08) rotate(2deg);
+  }
+
+  66% {
+    transform: translateX(-50%) scaleX(1.1) scaleY(0.95) rotate(-1deg);
+  }
+
+  100% {
+    transform: translateX(-50%) scaleX(1) scaleY(1.05) rotate(1deg);
+  }
 }
 
 /* Smoke (dark mode only) */
-.candle-smoke { pointer-events: none; }
+.candle-smoke {
+  pointer-events: none;
+}
+
 .smoke-wisp {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   width: 3px;
   border-radius: 50%;
-  background: rgba(120,120,120,0.45);
+  background: rgba(120, 120, 120, 0.45);
   opacity: 0;
 }
-.bird-toggle.dark-mode .candle-flame { opacity: 0; animation: none; }
-.bird-toggle.dark-mode .smoke-wisp   { animation: smokeRise 2s ease-in infinite; }
-.bird-toggle.dark-mode .s1 { bottom: 22px; height: 6px; animation-delay: 0s; }
-.bird-toggle.dark-mode .s2 { bottom: 25px; height: 4px; animation-delay: 0.5s; width: 2px; }
-.bird-toggle.dark-mode .s3 { bottom: 28px; height: 4px; animation-delay: 1s;   width: 2px; }
+
+.bird-toggle.dark-mode .candle-flame {
+  opacity: 0;
+  animation: none;
+}
+
+.bird-toggle.dark-mode .smoke-wisp {
+  animation: smokeRise 2s ease-in infinite;
+}
+
+.bird-toggle.dark-mode .s1 {
+  bottom: 22px;
+  height: 6px;
+  animation-delay: 0s;
+}
+
+.bird-toggle.dark-mode .s2 {
+  bottom: 25px;
+  height: 4px;
+  animation-delay: 0.5s;
+  width: 2px;
+}
+
+.bird-toggle.dark-mode .s3 {
+  bottom: 28px;
+  height: 4px;
+  animation-delay: 1s;
+  width: 2px;
+}
+
 @keyframes smokeRise {
-  0%   { opacity: 0.55; transform: translateX(-50%) translateY(0)    scaleX(1);   }
-  80%  { opacity: 0.15; transform: translateX(-50%) translateY(-8px)  scaleX(2);   }
-  100% { opacity: 0;    transform: translateX(-50%) translateY(-12px) scaleX(2.5); }
+  0% {
+    opacity: 0.55;
+    transform: translateX(-50%) translateY(0) scaleX(1);
+  }
+
+  80% {
+    opacity: 0.15;
+    transform: translateX(-50%) translateY(-8px) scaleX(2);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px) scaleX(2.5);
+  }
 }
 
 /* ================================================
@@ -124,6 +182,7 @@
   height: 28px;
   animation: birdBob 2.4s ease-in-out infinite;
 }
+
 .bird-toggle.blowing .bird,
 .bird-toggle.lighting .bird {
   animation: birdBlow 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -131,17 +190,38 @@
 
 /* Bob idle */
 @keyframes birdBob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-2px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
 }
 
 /* Blow: lunge LEFT toward candle, then return */
 @keyframes birdBlow {
-  0%   { transform: translateX(0)     translateY(0)   rotate(0deg); }
-  30%  { transform: translateX(-8px)  translateY(-1px) rotate(5deg); }
-  55%  { transform: translateX(-14px) translateY(0)   rotate(3deg); }
-  75%  { transform: translateX(-14px) translateY(0)   rotate(3deg); }
-  100% { transform: translateX(0)     translateY(0)   rotate(0deg); }
+  0% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+  }
+
+  30% {
+    transform: translateX(-8px) translateY(-1px) rotate(5deg);
+  }
+
+  55% {
+    transform: translateX(-14px) translateY(0) rotate(3deg);
+  }
+
+  75% {
+    transform: translateX(-14px) translateY(0) rotate(3deg);
+  }
+
+  100% {
+    transform: translateX(0) translateY(0) rotate(0deg);
+  }
 }
 
 /* Flip the bird interior to face LEFT */
@@ -160,8 +240,9 @@
   height: 16px;
   background: radial-gradient(ellipse at 40% 40%, #4a90d9 0%, #2d6db5 70%, #1a4a8a 100%);
   border-radius: 60% 60% 55% 55% / 65% 65% 50% 50%;
-  border: 1px solid rgba(0,0,0,0.12);
+  border: 1px solid rgba(0, 0, 0, 0.12);
 }
+
 .bird-body::after {
   content: '';
   position: absolute;
@@ -182,7 +263,7 @@
   height: 16px;
   background: radial-gradient(ellipse at 40% 35%, #5aa0e8 0%, #2d6db5 80%);
   border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.10);
+  border: 1px solid rgba(0, 0, 0, 0.10);
 }
 
 /* Eye */
@@ -194,8 +275,9 @@
   height: 4px;
   background: #111;
   border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
+
 .bird-eye::after {
   content: '';
   position: absolute;
@@ -220,44 +302,64 @@
   transform-origin: left center;
   transition: transform 0.2s;
 }
-.bird-toggle.blowing .bird-beak { transform: scaleY(1.5) translateY(-1px); }
+
+.bird-toggle.blowing .bird-beak {
+  transform: scaleY(1.5) translateY(-1px);
+}
 
 /* Match */
 .bird-match {
   position: absolute;
   top: 1px;
-  right: -13px; /* Stick out from beak (remember scaleX(-1) means right is left) */
+  right: -13px;
+  /* Stick out from beak (remember scaleX(-1) means right is left) */
   width: 14px;
   height: 2.5px;
   background: #d4a373;
   border-radius: 1px;
   z-index: 2;
 }
+
 .bird-match-head {
   position: absolute;
-  right: -3px; /* tip of the match */
+  right: -3px;
+  /* tip of the match */
   top: -1px;
   width: 5px;
   height: 4.5px;
   background: #e63946;
   border-radius: 50%;
 }
+
 .bird-match-spark {
   position: absolute;
   right: -6px;
   top: -6px;
   width: 16px;
   height: 16px;
-  background: radial-gradient(circle, rgba(255,200,0,1) 0%, rgba(255,100,0,0) 70%);
+  background: radial-gradient(circle, rgba(255, 200, 0, 1) 0%, rgba(255, 100, 0, 0) 70%);
   border-radius: 50%;
   animation: sparkIgnite 0.4s ease-out forwards;
-  animation-delay: 0.5s; /* ignites when near candle */
+  animation-delay: 0.5s;
+  /* ignites when near candle */
   opacity: 0;
 }
+
 @keyframes sparkIgnite {
-  0% { transform: scale(0); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 1; }
-  100% { transform: scale(0); opacity: 0; }
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
 }
 
 /* Cheek puff */
@@ -267,12 +369,15 @@
   right: -1px;
   width: 7px;
   height: 7px;
-  background: radial-gradient(ellipse, rgba(255,200,150,0.75) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(255, 200, 150, 0.75) 0%, transparent 70%);
   border-radius: 50%;
   opacity: 0;
   transition: opacity 0.15s;
 }
-.bird-toggle.blowing .bird-cheek { opacity: 1; }
+
+.bird-toggle.blowing .bird-cheek {
+  opacity: 1;
+}
 
 /* Wing */
 .bird-wing {
@@ -283,21 +388,44 @@
   height: 8px;
   background: radial-gradient(ellipse, #2d6db5 0%, #1a4a8a 100%);
   border-radius: 60% 40% 60% 40%;
-  border: 1px solid rgba(0,0,0,0.12);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   animation: wingFlap 2.4s ease-in-out infinite;
   transform-origin: right center;
 }
+
 @keyframes wingFlap {
-  0%, 100% { transform: rotate(0deg) scaleY(1); }
-  50%       { transform: rotate(-6deg) scaleY(0.85); }
+
+  0%,
+  100% {
+    transform: rotate(0deg) scaleY(1);
+  }
+
+  50% {
+    transform: rotate(-6deg) scaleY(0.85);
+  }
 }
+
 .bird-toggle.blowing .bird-wing,
-.bird-toggle.lighting .bird-wing { animation: wingBlow 0.9s ease forwards; }
+.bird-toggle.lighting .bird-wing {
+  animation: wingBlow 0.9s ease forwards;
+}
+
 @keyframes wingBlow {
-  0%   { transform: rotate(0deg); }
-  40%  { transform: rotate(-18deg) scaleY(0.7); }
-  75%  { transform: rotate(-18deg) scaleY(0.7); }
-  100% { transform: rotate(0deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  40% {
+    transform: rotate(-18deg) scaleY(0.7);
+  }
+
+  75% {
+    transform: rotate(-18deg) scaleY(0.7);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 /* Tail */
@@ -320,6 +448,7 @@
   display: flex;
   gap: 4px;
 }
+
 .foot {
   width: 1.5px;
   height: 6px;
@@ -327,6 +456,7 @@
   border-radius: 1px;
   position: relative;
 }
+
 .foot::after {
   content: '';
   position: absolute;
@@ -337,10 +467,34 @@
   background: #f4a526;
   border-radius: 1px;
 }
-.bird-toggle:not(.blowing):not(.lighting) .f1 { animation: stepLeft  0.5s ease-in-out infinite alternate; }
-.bird-toggle:not(.blowing):not(.lighting) .f2 { animation: stepRight 0.5s ease-in-out infinite alternate; }
-@keyframes stepLeft  { from { transform: translateY(0);    } to { transform: translateY(-2px); } }
-@keyframes stepRight { from { transform: translateY(-2px); } to { transform: translateY(0);    } }
+
+.bird-toggle:not(.blowing):not(.lighting) .f1 {
+  animation: stepLeft 0.5s ease-in-out infinite alternate;
+}
+
+.bird-toggle:not(.blowing):not(.lighting) .f2 {
+  animation: stepRight 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes stepLeft {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes stepRight {
+  from {
+    transform: translateY(-2px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
 
 /* ================================================
    BLOW PUFF — appears between bird and candle
@@ -348,28 +502,73 @@
 .blow-puff {
   position: absolute;
   bottom: 18px;
-  left: 16px; /* gap between candle and bird */
+  left: 16px;
+  /* gap between candle and bird */
   pointer-events: none;
 }
+
 .puff {
   position: absolute;
   border-radius: 50%;
-  background: rgba(200,220,255,0.6);
+  background: rgba(200, 220, 255, 0.6);
   animation: puffOut 0.7s ease-out forwards;
 }
-.p1 { width: 8px; height: 8px; left: 0;   top: 0;   animation-delay: 0s;    }
-.p2 { width: 5px; height: 5px; left: -4px; top: -4px; animation-delay: 0.08s; }
-.p3 { width: 6px; height: 6px; left: 4px;  top: -5px; animation-delay: 0.14s; }
+
+.p1 {
+  width: 8px;
+  height: 8px;
+  left: 0;
+  top: 0;
+  animation-delay: 0s;
+}
+
+.p2 {
+  width: 5px;
+  height: 5px;
+  left: -4px;
+  top: -4px;
+  animation-delay: 0.08s;
+}
+
+.p3 {
+  width: 6px;
+  height: 6px;
+  left: 4px;
+  top: -5px;
+  animation-delay: 0.14s;
+}
+
 @keyframes puffOut {
-  0%   { transform: scale(0.3) translate(0, 0);          opacity: 0.9; }
-  50%  { opacity: 0.6; }
-  100% { transform: scale(1.6) translate(-8px, -8px);    opacity: 0;   }
+  0% {
+    transform: scale(0.3) translate(0, 0);
+    opacity: 0.9;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(1.6) translate(-8px, -8px);
+    opacity: 0;
+  }
 }
 
 /* ================================================
    DARK MODE BIRD — subtle colour shift
    ================================================ */
-.bird-toggle.dark-mode .bird-body  { background: radial-gradient(ellipse at 40% 40%, #7b68ee 0%, #5546cc 70%, #3a2faa 100%); }
-.bird-toggle.dark-mode .bird-head  { background: radial-gradient(ellipse at 40% 35%, #9080f0 0%, #5546cc 80%); }
-.bird-toggle.dark-mode .bird-wing  { background: radial-gradient(ellipse, #5546cc 0%, #3a2faa 100%); }
-.bird-toggle.dark-mode .bird-tail  { border-right-color: #3a2faa; }
+.bird-toggle.dark-mode .bird-body {
+  background: radial-gradient(ellipse at 40% 40%, #7b68ee 0%, #5546cc 70%, #3a2faa 100%);
+}
+
+.bird-toggle.dark-mode .bird-head {
+  background: radial-gradient(ellipse at 40% 35%, #9080f0 0%, #5546cc 80%);
+}
+
+.bird-toggle.dark-mode .bird-wing {
+  background: radial-gradient(ellipse, #5546cc 0%, #3a2faa 100%);
+}
+
+.bird-toggle.dark-mode .bird-tail {
+  border-right-color: #3a2faa;
+}

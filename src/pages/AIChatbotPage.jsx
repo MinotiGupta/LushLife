@@ -72,8 +72,13 @@ export default function AIChatbotPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 420px', gap: 24 }}>
+<<<<<<< Updated upstream
         <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: '24px', padding: 24, minHeight: 520, display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
+=======
+        <div className="glass-panel" style={{ borderRadius: '24px', padding: 24, height: '65vh', minHeight: '520px', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }} id="chat-scroll-container">
+>>>>>>> Stashed changes
             {chatMessages.map((msg, index) => (
               <div key={index} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 14 }}>
                 <div style={{
@@ -114,7 +119,7 @@ export default function AIChatbotPage() {
         </div>
 
         <aside style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: '24px', padding: 24 }}>
+          <div className="glass-panel" style={{ borderRadius: '24px', padding: 24 }}>
             <div style={{ fontWeight: 700, marginBottom: 12 }}>Try these prompts</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {SUGGESTED_PROMPTS.map(prompt => (
@@ -131,7 +136,7 @@ export default function AIChatbotPage() {
             </div>
           </div>
 
-          <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: '24px', padding: 24 }}>
+          <div className="glass-panel" style={{ borderRadius: '24px', padding: 24 }}>
             <div style={{ fontWeight: 700, marginBottom: 12 }}>How it works</div>
             <ul style={{ paddingLeft: 18, color: 'var(--text-muted)', lineHeight: 1.8, fontSize: 14 }}>
               <li>Describe your salon need in your own words.</li>

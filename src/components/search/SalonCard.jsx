@@ -7,7 +7,24 @@ function SalonCard({ salon, showMatch = true }) {
   const matchColor = getMatchColor(salon.computedScore || salon.matchScore);
 
   return (
-    <div className="salon-card" onClick={() => navigate(`/salon/${salon.id}`)} id={`salon-card-${salon.id}`}>
+    <div className="salon-card glass-panel" 
+         onClick={() => navigate(`/salon/${salon.id}`)} 
+         id={`salon-card-${salon.id}`}
+         style={{ transformStyle: 'preserve-3d', transition: 'all 0.3s cubic-bezier(0.25, 1, 0.5, 1)' }}
+         onMouseMove={(e) => {
+           const rect = e.currentTarget.getBoundingClientRect();
+           const x = e.clientX - rect.left;
+           const y = e.clientY - rect.top;
+           const centerX = rect.width / 2;
+           const centerY = rect.height / 2;
+           const rotateX = ((y - centerY) / centerY) * -5;
+           const rotateY = ((x - centerX) / centerX) * 5;
+           e.currentTarget.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+         }}
+         onMouseLeave={(e) => {
+           e.currentTarget.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+         }}
+    >
       {/* Image */}
       <div className="salon-card-image">
         <img
