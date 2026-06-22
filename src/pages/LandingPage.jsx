@@ -104,7 +104,37 @@ export default function LandingPage() {
             ))}
           </div>
 
+          {/* Hailey/Shiv Quote */}
+          <div style={{ marginTop: 48, fontSize: 14, color: 'var(--text-muted)', fontStyle: 'italic', maxWidth: 420, lineHeight: 1.6 }}>
+            "If you're not going to sleep looking like a glazed donut, you're not doing it right!"
+            <div style={{ marginTop: 8, fontStyle: 'normal', fontWeight: 600, fontSize: 13, opacity: 0.8 }}>
+              — Shiv
+            </div>
+          </div>
 
+          {/* Hero App Mockup */}
+          <div style={{ marginTop: 60, transform: 'perspective(1000px) rotateY(10deg) rotateX(5deg)', transformStyle: 'preserve-3d', transition: 'all 0.4s ease' }} 
+               className="hero-mockup-wrapper"
+               onMouseMove={(e) => {
+                 const rect = e.currentTarget.getBoundingClientRect();
+                 const x = e.clientX - rect.left;
+                 const y = e.clientY - rect.top;
+                 const centerX = rect.width / 2;
+                 const centerY = rect.height / 2;
+                 const rotateX = ((y - centerY) / centerY) * -10;
+                 const rotateY = ((x - centerX) / centerX) * 10;
+                 e.currentTarget.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+               }}
+               onMouseLeave={(e) => {
+                 e.currentTarget.style.transform = `perspective(1000px) rotateY(10deg) rotateX(5deg)`;
+               }}
+          >
+            <img 
+              src="/hero_app_mockup.png" 
+              alt="LushLife App Preview" 
+              style={{ width: '100%', maxWidth: '380px', borderRadius: '24px', boxShadow: '0 24px 64px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }} 
+            />
+          </div>
         </div>
       </div>
 
