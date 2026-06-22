@@ -14,6 +14,21 @@ import OwnerDashboard from './pages/OwnerDashboard.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import './index.css';
 
+import { useEffect } from 'react';
+
+function CursorSpotlight() {
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+  
+  return <div className="cursor-spotlight" />;
+}
+
 // Wrapper so we can read location inside BrowserRouter
 function AppInner() {
   const location = useLocation();
@@ -22,6 +37,7 @@ function AppInner() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <CursorSpotlight />
       {!hideChrome && <Navbar />}
       <main style={{ flex: 1 }}>
         <Routes>

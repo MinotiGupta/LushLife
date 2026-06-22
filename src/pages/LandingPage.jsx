@@ -104,12 +104,37 @@ export default function LandingPage() {
             ))}
           </div>
 
+<<<<<<< Updated upstream
           {/* Testimonial */}
           <div className="landing-testimonial">
             <div className="landing-testimonial-text">
               "Found my bridal salon in 2 minutes. The AI quiz actually understood what I needed."
             </div>
             <div className="landing-testimonial-author">— Priya R., Banjara Hills bride 2026</div>
+=======
+          {/* Hero App Mockup */}
+          <div style={{ marginTop: 60, transform: 'perspective(1000px) rotateY(10deg) rotateX(5deg)', transformStyle: 'preserve-3d', transition: 'all 0.4s ease' }} 
+               className="hero-mockup-wrapper"
+               onMouseMove={(e) => {
+                 const rect = e.currentTarget.getBoundingClientRect();
+                 const x = e.clientX - rect.left;
+                 const y = e.clientY - rect.top;
+                 const centerX = rect.width / 2;
+                 const centerY = rect.height / 2;
+                 const rotateX = ((y - centerY) / centerY) * -10;
+                 const rotateY = ((x - centerX) / centerX) * 10;
+                 e.currentTarget.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+               }}
+               onMouseLeave={(e) => {
+                 e.currentTarget.style.transform = `perspective(1000px) rotateY(10deg) rotateX(5deg)`;
+               }}
+          >
+            <img 
+              src="/hero_app_mockup.png" 
+              alt="LushLife App Preview" 
+              style={{ width: '100%', maxWidth: '380px', borderRadius: '24px', boxShadow: '0 24px 64px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }} 
+            />
+>>>>>>> Stashed changes
           </div>
         </div>
       </div>
