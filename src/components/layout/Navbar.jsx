@@ -172,7 +172,7 @@ export default function Navbar() {
             </>
           ) : (
             /* Not logged in */
-            <Link to="/" className="btn-primary" style={{ padding: '8px 18px', fontSize: 13 }}>
+            <Link to="/login" className="btn-primary" style={{ padding: '8px 18px', fontSize: 13 }}>
               Sign In
             </Link>
           )}
@@ -198,7 +198,7 @@ export default function Navbar() {
           {user ? (
             <Link to="/profile" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>My Profile</Link>
           ) : (
-            <Link to="/" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>Sign In</Link>
+            <Link to="/login" style={{ color: 'var(--text)', textDecoration: 'none', fontWeight: 500, fontSize: 14 }} onClick={() => setMenuOpen(false)}>Sign In</Link>
           )}
           {user && (
             <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#DC2626', fontWeight: 600, textAlign: 'left', fontSize: 14, fontFamily: 'var(--font-mono)', padding: 0 }}>

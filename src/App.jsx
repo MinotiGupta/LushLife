@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 import Navbar from './components/layout/Navbar.jsx';
 import Footer from './components/layout/Footer.jsx';
 import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
+import IntroPage from './pages/IntroPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
@@ -32,7 +33,7 @@ function CursorSpotlight() {
 // Wrapper so we can read location inside BrowserRouter
 function AppInner() {
   const location = useLocation();
-  const hideChromeOn = ['/'];
+  const hideChromeOn = ['/', '/login'];
   const hideChrome = hideChromeOn.includes(location.pathname);
 
   return (
@@ -42,7 +43,8 @@ function AppInner() {
       <main style={{ flex: 1 }}>
         <Routes>
           {/* Public: only for guests. Logged-in users are redirected by role. */}
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<IntroPage />} />
+          <Route path="/login" element={<LandingPage />} />
 
           {/* Customer-only routes */}
           <Route path="/home" element={<ProtectedRoute role="customer" element={<HomePage />} />} />
@@ -54,7 +56,6 @@ function AppInner() {
 
           {/* Owner-only route */}
           <Route path="/dashboard" element={<ProtectedRoute role="owner" element={<OwnerDashboard />} />} />
-
           <Route path="*" element={
             <div style={{ textAlign: 'center', padding: '80px 24px' }}>
               <div style={{ fontSize: 40, marginBottom: 16 }}>—</div>

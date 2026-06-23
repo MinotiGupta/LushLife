@@ -9,11 +9,11 @@ import { useAuth } from '../../context/AuthContext.jsx';
  *   role        — required role: 'customer' | 'owner' | undefined (any logged-in user)
  *   redirectTo  — where to send unauthorised users (default: '/')
  */
-export default function ProtectedRoute({ element, role, redirectTo = '/' }) {
+export default function ProtectedRoute({ element, role, redirectTo = '/login' }) {
   const { user } = useAuth();
 
   // Not logged in at all → send to login page
-  if (!user) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to={redirectTo} replace />;
 
   // Logged in but wrong role → redirect based on their actual role
   if (role && user.role !== role) {

@@ -1,22 +1,24 @@
 """
-Fetches REAL salon data from Google Places API and seeds MongoDB.
+fetch_salons.py (Enhanced)
+──────────────────────────
+Fetches REAL salon data from Google Places API and upserts into MongoDB.
+
 Requires: GOOGLE_PLACES_API_KEY in .env
 
-What it pulls (live from Google Maps):
-  - Name, address, locality, lat/lng
-  - Rating, review count, actual review text
-  - Photos (real Google-hosted URLs)
-  - Phone number, opening hours
-  - Business status (open/closed)
-
-Services & stylists are not available from Google, so we generate
-reasonable defaults based on the salon's price level.
+Improvements over original:
+  - Uses upsert on google_place_id (no more dropping the collection)
+  - Stores opening_hours as a proper per-day dict
+  - Stores phone_number, address_full, thumbnail_url, is_verified, scraped_at
+  - Covers more Hyderabad localities (16 search queries)
+  - Prints a summary at the end (inserted / updated / failed)
 """
 
 import asyncio
 import os
+import time
 import requests
 import uuid
+from datetime import datetime, timezone
 from database import db, client
 from dotenv import load_dotenv
 
@@ -26,10 +28,10 @@ API_KEY = os.getenv("GOOGLE_PLACES_API_KEY")
 if not API_KEY:
     print("ERROR: Set GOOGLE_PLACES_API_KEY in your .env file")
     print("Get one at: https://console.cloud.google.com/apis/credentials")
-    print("Enable: Places API (New) or Places API")
+    print("Enable: Places API (or Places API (New))")
     exit(1)
 
-# ── Config ──────────────────────────────────────────────
+# ── Config ──────────────────────────────────────────────────────────────────
 SEARCH_QUERIES = [
     "beauty salon in Banjara Hills Hyderabad",
     "beauty salon in Jubilee Hills Hyderabad",
@@ -38,6 +40,14 @@ SEARCH_QUERIES = [
     "beauty salon in Madhapur Hyderabad",
     "beauty salon in Ameerpet Hyderabad",
     "beauty salon in Kukatpally Hyderabad",
+    "beauty salon in Himayatnagar Hyderabad",
+    "beauty salon in Secunderabad Hyderabad",
+    "beauty salon in Begumpet Hyderabad",
+    "beauty salon in Somajiguda Hyderabad",
+    "beauty salon in Miyapur Hyderabad",
+    "beauty salon in Manikonda Hyderabad",
+    "beauty salon in Tolichowki Hyderabad",
+    "beauty salon in Financial District Hyderabad",
     "bridal makeup salon Hyderabad",
 ]
 
@@ -49,34 +59,50 @@ HYDERABAD_LOCALITIES = [
     "LB Nagar", "Uppal", "KPHB", "Financial District",
 ]
 
-# ── Google Places helpers ───────────────────────────────
+# Day name → index map (Google returns weekday_text with English day names)
+DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+
+# ── Google Places API helpers ────────────────────────────────────────────────
+
 def text_search(query, max_results=5):
-    """Search for places using Text Search (legacy)."""
+    """Search for places using Text Search."""
     url = "https://maps.googleapis.com/maps/api/place/textsearch/json"
     params = {"query": query, "key": API_KEY, "type": "beauty_salon"}
-    resp = requests.get(url, params=params)
-    data = resp.json()
-    if data.get("status") != "OK":
-        print(f"  Search failed: {data.get('status')} — {data.get('error_message','')}")
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        data = resp.json()
+        if data.get("status") != "OK":
+            print(f"  Search failed: {data.get('status')} — {data.get('error_message', '')}")
+            return []
+        return data.get("results", [])[:max_results]
+    except Exception as e:
+        print(f"  Network error during text_search: {e}")
         return []
-    return data.get("results", [])[:max_results]
 
 
 def get_place_details(place_id):
-    """Get detailed info for a single place."""
+    """Get detailed info for a single place including phone, opening hours."""
     url = "https://maps.googleapis.com/maps/api/place/details/json"
     params = {
         "place_id": place_id,
         "key": API_KEY,
-        "fields": "name,formatted_address,formatted_phone_number,geometry,rating,"
-                  "user_ratings_total,reviews,photos,opening_hours,price_level,"
-                  "business_status,types,editorial_summary",
+        "fields": (
+            "name,formatted_address,formatted_phone_number,geometry,rating,"
+            "user_ratings_total,reviews,photos,opening_hours,price_level,"
+            "business_status,types,editorial_summary,website,place_id"
+        ),
     }
-    resp = requests.get(url, params=params)
-    data = resp.json()
-    if data.get("status") != "OK":
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        data = resp.json()
+        if data.get("status") != "OK":
+            print(f"  Details failed: {data.get('status')}")
+            return None
+        return data.get("result")
+    except Exception as e:
+        print(f"  Network error during get_place_details: {e}")
         return None
-    return data.get("result")
 
 
 def get_photo_url(photo_ref, max_width=800):
@@ -87,25 +113,71 @@ def get_photo_url(photo_ref, max_width=800):
     )
 
 
-# ── Transform Google data → our schema ──────────────────
-def detect_locality(address):
+# ── Data transformation helpers ──────────────────────────────────────────────
+
+def detect_locality(address: str) -> str:
     """Try to match a known Hyderabad locality from the address string."""
+    if not address:
+        return "Hyderabad"
     for loc in HYDERABAD_LOCALITIES:
         if loc.lower() in address.lower():
             return loc
     return "Hyderabad"
 
 
-def derive_price_band(price_level, rating):
-    """Map Google's price_level (0-4) to our bands."""
+def derive_price_band(price_level, rating) -> str:
+    """Map Google's price_level (0–4) to our bands."""
     if price_level is not None:
-        if price_level >= 3: return "premium"
-        if price_level >= 2: return "mid"
+        if price_level >= 3:
+            return "premium"
+        if price_level >= 2:
+            return "mid"
         return "budget"
     # Fallback: higher-rated salons tend to be pricier
-    if rating and rating >= 4.5: return "premium"
-    if rating and rating >= 4.0: return "mid"
+    if rating and rating >= 4.5:
+        return "premium"
+    if rating and rating >= 4.0:
+        return "mid"
     return "budget"
+
+
+def parse_opening_hours(hours_obj: dict) -> dict | None:
+    """
+    Convert Google's opening_hours.weekday_text into a clean dict:
+    {
+        "Monday": "9:00 AM – 9:00 PM",
+        "Tuesday": "9:00 AM – 9:00 PM",
+        ...
+    }
+    """
+    if not hours_obj:
+        return None
+    weekday_text = hours_obj.get("weekday_text", [])
+    result = {}
+    for entry in weekday_text:
+        # Google format: "Monday: 9:00 AM – 9:00 PM" or "Monday: Closed"
+        if ":" in entry:
+            day, _, hours = entry.partition(":")
+            result[day.strip()] = hours.strip()
+    return result if result else None
+
+
+def build_sentiment(reviews: list) -> str:
+    """Simple keyword-based sentiment summary from top reviews."""
+    sentiments = []
+    keywords = {
+        "clean": "clean", "friendly": "friendly", "staff": "friendly",
+        "professional": "professional", "expensive": "pricey",
+        "pricey": "pricey", "quick": "quick", "fast": "quick",
+        "luxury": "luxurious", "premium": "luxurious", "hygien": "hygienic",
+        "bridal": "bridal specialist", "makeup": "makeup expert",
+    }
+    for review in reviews[:5]:
+        text = (review.get("text") or "").lower()
+        for kw, label in keywords.items():
+            if kw in text and label not in sentiments:
+                sentiments.append(label)
+    return ", ".join(sentiments[:4]) or "professional, reliable, clean"
 
 
 DEFAULT_SERVICES = {
@@ -136,130 +208,185 @@ DEFAULT_SERVICES = {
 }
 
 
-def transform_place(details):
-    """Convert Google Place details into our Salon schema."""
+def transform_place(details: dict) -> dict:
+    """Convert Google Place details into the LushLife Salon schema."""
     name = details.get("name", "Unknown Salon")
     address = details.get("formatted_address", "Hyderabad")
     locality = detect_locality(address)
-    rating = details.get("rating", 0)
+    rating = details.get("rating", 0) or 0
     price_band = derive_price_band(details.get("price_level"), rating)
     geo = details.get("geometry", {}).get("location", {})
-    
-    # Photos
+    google_reviews_raw = details.get("reviews") or []
+
+    # ── Photos ────────────────────────────────────────────────────
     photos = []
     for p in (details.get("photos") or [])[:4]:
         ref = p.get("photo_reference")
         if ref:
             photos.append({
                 "url": get_photo_url(ref),
-                "ai_tags": ["salon", locality.lower().replace(" ", "-")]
+                "ai_tags": ["salon", locality.lower().replace(" ", "-")],
             })
     if not photos:
         photos = [{"url": "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80", "ai_tags": ["salon"]}]
 
-    # Reviews
-    google_reviews = details.get("reviews") or []
-    
-    # Build sentiment from top reviews
-    sentiments = []
-    for r in google_reviews[:3]:
-        text = r.get("text", "")
-        if "clean" in text.lower(): sentiments.append("clean")
-        if "friendly" in text.lower() or "staff" in text.lower(): sentiments.append("friendly")
-        if "professional" in text.lower(): sentiments.append("professional")
-        if "expensive" in text.lower() or "pricey" in text.lower(): sentiments.append("pricey")
-        if "quick" in text.lower() or "fast" in text.lower(): sentiments.append("quick")
-        if "luxury" in text.lower() or "premium" in text.lower(): sentiments.append("luxurious")
-        if "hygien" in text.lower(): sentiments.append("hygienic")
-    sentiment = ", ".join(list(dict.fromkeys(sentiments))[:3]) or "professional, reliable, clean"
+    thumbnail_url = photos[0]["url"] if photos else None
 
-    # Services (templated by price band)
+    # ── Services ──────────────────────────────────────────────────
     services = []
     for svc in DEFAULT_SERVICES.get(price_band, DEFAULT_SERVICES["mid"]):
         services.append({
             "service_id": str(uuid.uuid4())[:8],
-            "name": svc["name"],
-            "category": svc["category"],
-            "duration_min": svc["duration_min"],
-            "price": svc["price"],
+            **svc,
             "stylist_ids": [],
         })
 
-    # Hours
-    hours_obj = details.get("opening_hours", {})
+    # ── Opening hours ─────────────────────────────────────────────
+    hours_obj = details.get("opening_hours") or {}
+    hours_dict = parse_opening_hours(hours_obj)
     is_open = hours_obj.get("open_now", True)
 
+    # ── Reviews ───────────────────────────────────────────────────
+    google_reviews = [
+        {
+            "author": r.get("author_name", "Anonymous"),
+            "rating": r.get("rating", 5),
+            "text": r.get("text", ""),
+            "time": r.get("relative_time_description", ""),
+            "profile_photo": r.get("profile_photo_url", ""),
+        }
+        for r in google_reviews_raw[:5]
+    ]
+
+    now_utc = datetime.now(timezone.utc)
+
     return {
+        # Identity
+        "google_place_id": details.get("place_id"),
         "name": name,
-        "owner_id": f"google_{details.get('place_id', 'unknown')[:12]}",
+        "owner_id": f"google_{(details.get('place_id') or 'unknown')[:12]}",
+        # Location
         "locality": locality,
         "location": {
             "type": "Point",
-            "coordinates": [geo.get("lng", 78.47), geo.get("lat", 17.38)]
+            "coordinates": [geo.get("lng", 78.47), geo.get("lat", 17.38)],
         },
-        "description": details.get("editorial_summary", {}).get("overview", "")
-                       or f"{name} — a popular beauty salon in {locality}, Hyderabad.",
+        "address_full": address,
+        # Contact
+        "phone_number": details.get("formatted_phone_number") or "",
+        "website": details.get("website") or "",
+        # Description
+        "description": (
+            (details.get("editorial_summary") or {}).get("overview")
+            or f"{name} — a popular beauty salon in {locality}, Hyderabad."
+        ),
+        # Services / Media
         "services": services,
-        "stylists": [],  # Not available from Google
+        "stylists": [],
         "photos": photos,
+        "thumbnail_url": thumbnail_url,
+        # Ratings
         "rating_avg": rating,
-        "review_count": details.get("user_ratings_total", 0),
-        "sentiment_summary": sentiment,
+        "review_count": details.get("user_ratings_total", 0) or 0,
+        "sentiment_summary": build_sentiment(google_reviews_raw),
+        # Quality indicators
         "embedding": [],
         "price_band": price_band,
         "is_active": is_open,
-        "phone": details.get("formatted_phone_number", ""),
-        "address": address,
-        "google_place_id": details.get("place_id"),
-        "google_reviews": [
-            {
-                "author": r.get("author_name", "Anonymous"),
-                "rating": r.get("rating", 5),
-                "text": r.get("text", ""),
-                "time": r.get("relative_time_description", ""),
-                "profile_photo": r.get("profile_photo_url", ""),
-            }
-            for r in google_reviews[:5]
-        ],
+        "is_verified": True,   # All Google Places listings treated as verified
+        "is_trusted": False,
+        # Hours
+        "opening_hours": hours_dict,
+        "is_open_now": is_open,
+        # Reviews
+        "google_reviews": google_reviews,
+        # Metadata
+        "scraped_at": now_utc,
+        "last_updated": now_utc,
     }
 
 
-# ── Main ────────────────────────────────────────────────
-async def fetch_and_seed():
-    seen_ids = set()
-    all_salons = []
+# ── Main ─────────────────────────────────────────────────────────────────────
 
-    for query in SEARCH_QUERIES:
-        print(f"Searching: {query}")
+async def fetch_and_upsert(dry_run: bool = False, max_queries: int | None = None):
+    """
+    Fetch salons from Google Places and upsert into MongoDB.
+
+    Args:
+        dry_run: If True, fetches data but does not write to DB.
+        max_queries: Limit number of search queries (for testing).
+    """
+    seen_place_ids: set[str] = set()
+    stats = {"total": 0, "inserted": 0, "updated": 0, "failed": 0}
+    start_time = time.time()
+
+    queries = SEARCH_QUERIES[:max_queries] if max_queries else SEARCH_QUERIES
+
+    for query in queries:
+        print(f"\n🔍 Searching: {query}")
         results = text_search(query, max_results=5)
-        print(f"  Found {len(results)} results")
+        print(f"   Found {len(results)} candidates")
 
         for place in results:
             pid = place.get("place_id")
-            if pid in seen_ids:
+            if not pid or pid in seen_place_ids:
                 continue
-            seen_ids.add(pid)
+            seen_place_ids.add(pid)
+            stats["total"] += 1
+
+            # Polite delay to avoid rate-limiting (1 req/sec is well within quota)
+            time.sleep(0.5)
 
             details = get_place_details(pid)
             if not details:
+                print(f"   ⚠️  Skipping {place.get('name')} — could not fetch details")
+                stats["failed"] += 1
                 continue
 
-            salon = transform_place(details)
-            all_salons.append(salon)
-            print(f"  ✓ {salon['name']} — {salon['locality']} ({salon['rating_avg']}★, {salon['review_count']} reviews)")
+            salon_doc = transform_place(details)
+            salon_name = salon_doc["name"]
+            salon_locality = salon_doc["locality"]
 
-    if not all_salons:
-        print("No salons fetched. Check your API key and billing.")
-        client.close()
-        return
+            if dry_run:
+                print(f"   [DRY RUN] Would upsert: {salon_name} ({salon_locality})")
+                continue
 
-    print(f"\nDropping old salons collection...")
-    await db.salons.drop()
-    print(f"Inserting {len(all_salons)} real salons...")
-    await db.salons.insert_many(all_salons)
-    print(f"Done! {len(all_salons)} salons seeded from Google Places.")
+            try:
+                result = await db.salons.update_one(
+                    {"google_place_id": pid},
+                    {
+                        "$set": salon_doc,
+                        "$setOnInsert": {"created_at": datetime.now(timezone.utc)},
+                    },
+                    upsert=True,
+                )
+                if result.upserted_id:
+                    stats["inserted"] += 1
+                    print(f"   ✅ INSERTED: {salon_name} — {salon_locality} ({salon_doc['rating_avg']}★)")
+                elif result.modified_count > 0:
+                    stats["updated"] += 1
+                    print(f"   🔄 UPDATED:  {salon_name} — {salon_locality}")
+                else:
+                    print(f"   ℹ️  NO CHANGE: {salon_name} (already up-to-date)")
+            except Exception as e:
+                stats["failed"] += 1
+                print(f"   ❌ DB ERROR for {salon_name}: {e}")
+
+    elapsed = round((time.time() - start_time) / 60, 2)
+
+    print(f"\n{'=' * 60}")
+    print("Fetch complete!")
+    print(f"  ✅ Total listings processed : {stats['total']}")
+    print(f"  ✅ New records inserted     : {stats['inserted']}")
+    print(f"  🔄 Existing records updated : {stats['updated']}")
+    print(f"  ⚠️  Failed records           : {stats['failed']}")
+    print(f"  ⏱️  Total time               : {elapsed} minutes")
+    print(f"{'=' * 60}")
+
     client.close()
 
 
 if __name__ == "__main__":
-    asyncio.run(fetch_and_seed())
+    import sys
+    dry = "--dry-run" in sys.argv
+    asyncio.run(fetch_and_upsert(dry_run=dry))

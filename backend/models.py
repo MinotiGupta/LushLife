@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 from datetime import datetime
 from bson import ObjectId
+
 
 class PyObjectId(ObjectId):
     @classmethod
@@ -29,6 +30,7 @@ class PyObjectId(ObjectId):
             raise ValueError("Invalid ObjectId")
         return ObjectId(v)
 
+
 class Service(BaseModel):
     service_id: str
     name: str
@@ -37,37 +39,68 @@ class Service(BaseModel):
     price: int
     stylist_ids: List[str] = []
 
+
 class Stylist(BaseModel):
     stylist_id: str
     name: str
     bio: Optional[str] = None
     photo_url: Optional[str] = None
 
+
 class Photo(BaseModel):
     url: str
     ai_tags: List[str] = []
 
+
 class Salon(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
+
+    # ── Identity ─────────────────────────────────────────────────
     name: str
     owner_id: str
+    google_place_id: Optional[str] = None
+
+    # ── Location ─────────────────────────────────────────────────
     locality: str
     location: dict = {"type": "Point", "coordinates": [0, 0]}
+    address_full: Optional[str] = None      # Full formatted address
+
+    # ── Contact ──────────────────────────────────────────────────
+    phone_number: Optional[str] = None      # Primary phone number
+    website: Optional[str] = None
+
+    # ── Content ──────────────────────────────────────────────────
     description: str
     services: List[Service] = []
     stylists: List[Stylist] = []
     photos: List[Photo] = []
+    thumbnail_url: Optional[str] = None     # First/primary image URL
+
+    # ── Ratings ──────────────────────────────────────────────────
     rating_avg: float = 0.0
     review_count: int = 0
     sentiment_summary: Optional[str] = None
+    google_reviews: Optional[List[Dict]] = []
+
+    # ── Quality Indicators ───────────────────────────────────────
     embedding: List[float] = []
-    price_band: str = "budget" # budget, mid, premium
+    price_band: str = "budget"              # budget | mid | premium
     is_active: bool = True
-    opening_hours: Optional[str] = None
+    is_verified: bool = False               # Google-verified listing
+    is_trusted: bool = False                # Additional trust badge
+
+    # ── Hours ────────────────────────────────────────────────────
+    # Dict format: {"Monday": "9:00 AM – 9:00 PM", ...}
+    opening_hours: Optional[Dict[str, str]] = None
     is_open_now: Optional[bool] = None
+
+    # ── Metadata ─────────────────────────────────────────────────
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    
+    scraped_at: Optional[datetime] = None
+    last_updated: Optional[datetime] = None
+
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+
 
 class Booking(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
@@ -80,10 +113,11 @@ class Booking(BaseModel):
     stylist_id: Optional[str] = None
     slot_start: datetime
     slot_end: datetime
-    status: str = "pending" # pending, confirmed, completed, cancelled, no_show
+    status: str = "pending"  # pending, confirmed, completed, cancelled, no_show
     review_id: Optional[PyObjectId] = None
-    
+
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+
 
 class Review(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
