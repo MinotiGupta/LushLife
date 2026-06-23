@@ -47,7 +47,12 @@ async def get_salons(
     if rating_min is not None:
         query["rating_avg"] = {"$gte": rating_min}
     if service:
-        query["services.name"] = {"$regex": service, "$options": "i"}
+        regex_pattern = {"$regex": service, "$options": "i"}
+        query["$or"] = [
+            {"name": regex_pattern},
+            {"locality": regex_pattern},
+            {"services.name": regex_pattern}
+        ]
         
     salons_cursor = db.salons.find(query).limit(100)
     salons = await salons_cursor.to_list(length=100)

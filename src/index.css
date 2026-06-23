@@ -1,49 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
-
 :root {
-  /* GlowMap — Black & White Minimal */
-  --rose: #020202;
-  --rose-light: #333333;
-  --rose-pale: #F2F2F2;
-  --rose-dark: #000000;
-  --gold: #111111;
-  --gold-light: #555555;
-  --gold-pale: #F9F9F9;
-  --mauve: #555555;
-  --mauve-light: #AAAAAA;
-  --bg: #FFFFFF;
+  /* GlowMap — Vibrant Modern Aesthetic */
+  --rose: #E11D48;
+  --rose-light: #F43F5E;
+  --rose-pale: #FFE4E6;
+  --rose-dark: #BE123C;
+  --gold: #D97706;
+  --gold-light: #F59E0B;
+  --gold-pale: #FEF3C7;
+  --mauve: #8B5CF6;
+  --mauve-light: #A78BFA;
+  --bg: #FAFAFA;
+  --bg-secondary: #F4F4F5;
   --bg-card: #FFFFFF;
-  --text: #111111;
-  --text-muted: #555555;
-  --text-light: #999999;
-  --border: #E0E0E0;
-  --border-light: #EEEEEE;
+  --text: #0F172A;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+  --border: #E2E8F0;
+  --border-light: #F1F5F9;
 
-  /* Gradients — monochrome */
-  --gradient-hero: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
-  --gradient-rose: linear-gradient(135deg, #111111 0%, #444444 100%);
-  --gradient-gold: linear-gradient(135deg, #222222 0%, #555555 100%);
-  --gradient-card: linear-gradient(145deg, #ffffff 0%, #f9f9f9 100%);
+  /* Gradients — vibrant */
+  --gradient-hero: linear-gradient(135deg, #FFF1F2 0%, #FDF4FF 50%, #FFFBEB 100%);
+  --gradient-rose: linear-gradient(135deg, #E11D48 0%, #BE123C 100%);
+  --gradient-gold: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  --gradient-card: linear-gradient(145deg, #FFFFFF 0%, #FAFAFA 100%);
 
-  /* Shadows — neutral */
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.14);
-  --shadow-gold: 0 4px 16px rgba(0,0,0,0.12);
+  /* Shadows — soft and elevated */
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 16px 48px rgba(15, 23, 42, 0.12);
+  --shadow-gold: 0 8px 24px rgba(217, 119, 6, 0.2);
 
-  /* Typography — full monospace */
-  --font-heading: 'Space Mono', ui-monospace, monospace;
-  --font-body: 'Space Mono', ui-monospace, monospace;
-  --font-mono: 'Space Mono', ui-monospace, monospace;
+  /* Typography — Modern Sans */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Spacing / Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
   font-family: var(--font-mono);
@@ -73,37 +73,37 @@ body {
 }
 
 /* ============================================
-   DARK MODE — pure black & white
+   DARK MODE — Premium Vibrant Dark
    ============================================ */
 [data-theme="dark"] {
-  --rose: #ffffff;
-  --rose-light: #cccccc;
-  --rose-pale: #111111;
-  --rose-dark: #ffffff;
-  --gold: #dddddd;
-  --gold-light: #aaaaaa;
-  --gold-pale: #0d0d0d;
-  --mauve: #888888;
-  --mauve-light: #555555;
-  --bg: #000000;
-  --bg-secondary: #0d0d0d;
-  --bg-card: #0a0a0a;
-  --text: #ffffff;
-  --text-muted: #888888;
-  --text-light: #555555;
-  --border: #2a2a2a;
-  --border-light: #141414;
-  --accent: #ffffff;
+  --rose: #F43F5E;
+  --rose-light: #FB7185;
+  --rose-pale: rgba(244, 63, 94, 0.15);
+  --rose-dark: #E11D48;
+  --gold: #FCD34D;
+  --gold-light: #FDE68A;
+  --gold-pale: rgba(252, 211, 77, 0.1);
+  --mauve: #A78BFA;
+  --mauve-light: #C4B5FD;
+  --bg: #0B0914;
+  --bg-secondary: #131022;
+  --bg-card: #161326;
+  --text: #F8FAFC;
+  --text-muted: #94A3B8;
+  --text-light: #64748B;
+  --border: #2D2746;
+  --border-light: #1F1B33;
+  --accent: #F43F5E;
 
-  --gradient-hero: linear-gradient(135deg, #000000 0%, #0d0d0d 50%, #000000 100%);
-  --gradient-rose: linear-gradient(135deg, #333333 0%, #888888 100%);
-  --gradient-gold: linear-gradient(135deg, #222222 0%, #666666 100%);
-  --gradient-card: linear-gradient(145deg, #0a0a0a 0%, #111111 100%);
+  --gradient-hero: linear-gradient(135deg, #0B0914 0%, #1A1333 50%, #0F0A1A 100%);
+  --gradient-rose: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%);
+  --gradient-gold: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
+  --gradient-card: linear-gradient(145deg, #1A172D 0%, #131022 100%);
 
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.5);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.7);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.85);
-  --shadow-gold: 0 4px 16px rgba(255,255,255,0.06);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.6);
+  --shadow-gold: 0 8px 32px rgba(252, 211, 77, 0.15);
 
   color-scheme: dark;
 }
@@ -195,18 +195,19 @@ body {
 
 /* Dark mode: primary buttons */
 [data-theme="dark"] .btn-primary {
-  background: transparent;
-  border: 1px solid #ffffff;
+  background: var(--gradient-rose);
+  border: none;
   color: #ffffff;
 }
 [data-theme="dark"] .btn-primary:hover {
-  background: #ffffff;
-  color: #000000;
+  background: var(--rose-light);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.4);
 }
 [data-theme="dark"] .btn-primary:disabled {
-  background: transparent;
-  border-color: #555555;
-  color: #555555;
+  background: var(--border);
+  color: var(--text-light);
+  box-shadow: none;
 }
 
 /* Dark mode: profile header card */
@@ -290,20 +291,20 @@ body {
   border: none;
 }
 
-/* Typography — all monospace */
+/* Typography — Modern Sans */
 h1, h2, h3, h4 {
-  font-family: var(--font-mono);
+  font-family: var(--font-heading);
   color: var(--text);
-  line-height: 1.25;
-  letter-spacing: -0.5px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
-h1 { font-size: clamp(1.6rem, 4vw, 2.8rem); font-weight: 700; }
-h2 { font-size: clamp(1.2rem, 2.5vw, 1.8rem); font-weight: 700; }
-h3 { font-size: clamp(1rem, 1.8vw, 1.3rem); font-weight: 700; }
-h4 { font-size: 1rem; font-weight: 700; }
+h1 { font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 800; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.4rem); font-weight: 700; }
+h3 { font-size: clamp(1.1rem, 2vw, 1.5rem); font-weight: 700; }
+h4 { font-size: 1rem; font-weight: 600; }
 
-p { font-family: var(--font-mono); }
+p { font-family: var(--font-body); }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
@@ -413,19 +414,35 @@ p { font-family: var(--font-mono); }
   box-shadow: var(--shadow-gold);
 }
 
-/* Cards */
+/* Cards & Glassmorphism */
 .card {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
 .card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-4px);
+}
+
+.glass-panel {
+  background: rgba(250, 250, 250, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .glass-panel {
+  background: rgba(19, 16, 34, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 /* AI Badge (Glassmorphism) */
@@ -604,6 +621,23 @@ p { font-family: var(--font-mono); }
   justify-content: center;
   overflow: hidden;
   padding: 100px 24px 60px;
+}
+
+.cursor-spotlight {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  mix-blend-mode: soft-light;
+  background: radial-gradient(circle 400px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(225, 29, 72, 0.15), transparent 80%);
+}
+
+[data-theme="dark"] .cursor-spotlight {
+  mix-blend-mode: screen;
+  background: radial-gradient(circle 400px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(244, 63, 94, 0.12), transparent 80%);
 }
 
 .hero-bg-orb {

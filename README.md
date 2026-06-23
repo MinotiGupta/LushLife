@@ -36,7 +36,10 @@
 | Technology | Purpose |
 |---|---|
 | Python + FastAPI | REST API server |
+| Motor (AsyncIO) | Asynchronous MongoDB driver |
+| MongoDB | NoSQL database |
 | Uvicorn | ASGI server |
+| Google Gemini / Ollama | LLM integration for AI Match Chatbot |
 
 ---
 
@@ -46,6 +49,11 @@
 LushLife/
 ├── backend/
 │   ├── main.py              # FastAPI app entry point
+│   ├── database.py          # MongoDB connection setup
+│   ├── models.py            # Pydantic models for data validation
+│   ├── seed.py              # Database seeding scripts
+│   ├── fetch_salons_osm.py  # Script to fetch real salons from OpenStreetMap
+│   ├── routers/             # API endpoint definitions (salons, bookings, owner, ai)
 │   └── requirements.txt     # Python dependencies
 │
 ├── src/
@@ -68,10 +76,12 @@ LushLife/
 │   │   ├── SalonProfilePage.jsx  # Individual salon view (/salon/:id)
 │   │   ├── BookingPage.jsx  # Booking flow (/booking/:id)
 │   │   ├── OwnerDashboard.jsx    # Salon owner portal (/dashboard)
-│   │   └── ProfilePage.jsx  # User profile & history (/profile)
+│   │   ├── ProfilePage.jsx  # User profile & history (/profile)
+│   │   └── AIChatbotPage.jsx     # AI Match Chatbot (/ai-match)
 │   ├── App.jsx              # Root component with routing
 │   └── index.css            # Global styles & design tokens
 │
+├── .env                     # Frontend environment variables (VITE_GEMINI_API_KEY)
 ├── index.html
 ├── vite.config.js
 └── package.json
@@ -120,6 +130,10 @@ venv\Scripts\activate        # Windows
 # Install dependencies
 pip install -r requirements.txt
 
+# Setup Environment Variables
+# Create a .env file inside the `backend` folder and add:
+# MONGO_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/
+
 # Start the FastAPI server (runs on http://localhost:8000)
 uvicorn main:app --reload
 ```
@@ -134,13 +148,14 @@ The API will be available at `http://localhost:8000`. You can view auto-generate
 
 | Path | Page | Description |
 |---|---|---|
-| `/` | Landing Page | Hero, quiz entry point |
+| `/` | Landing Page | Hero, auth entry point |
 | `/home` | Home | Personalised feed post-login |
 | `/search` | Search | Browse & filter all salons |
-| `/salon/:id` | Salon Profile | Full salon detail + chatbot |
+| `/salon/:id` | Salon Profile | Full salon detail + reviews |
 | `/booking/:id` | Booking | Service & time slot selection |
 | `/dashboard` | Owner Dashboard | Salon owner management view |
 | `/profile` | Profile | User account & booking history |
+| `/ai-match` | AI Match | Chatbot interface connected to Gemini/Ollama |
 
 ---
 

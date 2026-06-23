@@ -8,11 +8,16 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (user) {
-      navigate('/search', { replace: true });
+      if (user.role === 'owner') {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/search', { replace: true });
+      }
     }
   }, [user, navigate]);
 
   const [mode, setMode] = useState('login'); // login | signup
+  const [loginType, setLoginType] = useState('customer'); // customer | owner
   // Login form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +38,11 @@ export default function LandingPage() {
     const result = login(email, password);
     setLoading(false);
     if (result.success) {
-      navigate('/search', { replace: true });
+      if (result.user.role === 'owner') {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/search', { replace: true });
+      }
     } else {
       setError(result.error);
     }
@@ -95,12 +104,28 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Testimonial */}
-          <div className="landing-testimonial">
-            <div className="landing-testimonial-text">
-              "Found my bridal salon in 2 minutes. The AI quiz actually understood what I needed."
-            </div>
-            <div className="landing-testimonial-author">— Priya R., Banjara Hills bride 2026</div>
+          {/* Hero App Mockup */}
+          <div style={{ marginTop: 60, transform: 'perspective(1000px) rotateY(10deg) rotateX(5deg)', transformStyle: 'preserve-3d', transition: 'all 0.4s ease' }} 
+               className="hero-mockup-wrapper"
+               onMouseMove={(e) => {
+                 const rect = e.currentTarget.getBoundingClientRect();
+                 const x = e.clientX - rect.left;
+                 const y = e.clientY - rect.top;
+                 const centerX = rect.width / 2;
+                 const centerY = rect.height / 2;
+                 const rotateX = ((y - centerY) / centerY) * -10;
+                 const rotateY = ((x - centerX) / centerX) * 10;
+                 e.currentTarget.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+               }}
+               onMouseLeave={(e) => {
+                 e.currentTarget.style.transform = `perspective(1000px) rotateY(10deg) rotateX(5deg)`;
+               }}
+          >
+            <img 
+              src="/hero_app_mockup.png" 
+              alt="LushLife App Preview" 
+              style={{ width: '100%', maxWidth: '380px', borderRadius: '24px', boxShadow: '0 24px 64px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }} 
+            />
           </div>
         </div>
       </div>
@@ -135,13 +160,25 @@ export default function LandingPage() {
               <div className="auth-form-title">Welcome back</div>
               <div className="auth-form-sub">Sign in to view bookings & get AI matches</div>
 
+              {/* Login Type Toggle */}
+              <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+                  <input type="radio" name="loginType" value="customer" checked={loginType === 'customer'} onChange={() => { setLoginType('customer'); setEmail('SMN@gmail.com'); }} />
+                  Customer
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, cursor: 'pointer' }}>
+                  <input type="radio" name="loginType" value="owner" checked={loginType === 'owner'} onChange={() => { setLoginType('owner'); setEmail('owner@studio9.com'); }} />
+                  Salon Owner
+                </label>
+              </div>
+
               <div className="form-group">
                 <label className="form-label" htmlFor="login-email">Email</label>
                 <input
                   id="login-email"
                   type="email"
                   className="form-input"
-                  placeholder="your@email.com"
+                  placeholder={loginType === 'owner' ? "owner@salon.com" : "your@email.com"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required

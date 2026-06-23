@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
 import Navbar from './components/layout/Navbar.jsx';
 import Footer from './components/layout/Footer.jsx';
+import ProtectedRoute from './components/auth/ProtectedRoute.jsx';
 import IntroPage from './pages/IntroPage.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import HomePage from './pages/HomePage.jsx';
@@ -14,6 +15,21 @@ import OwnerDashboard from './pages/OwnerDashboard.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import './index.css';
 
+import { useEffect } from 'react';
+
+function CursorSpotlight() {
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
+      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+  
+  return <div className="cursor-spotlight" />;
+}
+
 // Wrapper so we can read location inside BrowserRouter
 function AppInner() {
   const location = useLocation();
@@ -22,18 +38,24 @@ function AppInner() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <CursorSpotlight />
       {!hideChrome && <Navbar />}
       <main style={{ flex: 1 }}>
         <Routes>
+          {/* Public: only for guests. Logged-in users are redirected by role. */}
           <Route path="/" element={<IntroPage />} />
           <Route path="/login" element={<LandingPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/ai-match" element={<AIChatbotPage />} />
-          <Route path="/salon/:id" element={<SalonProfilePage />} />
-          <Route path="/booking/:id" element={<BookingPage />} />
-          <Route path="/dashboard" element={<OwnerDashboard />} />
-          <Route path="/profile" element={<ProfilePage />} />
+
+          {/* Customer-only routes */}
+          <Route path="/home" element={<ProtectedRoute role="customer" element={<HomePage />} />} />
+          <Route path="/search" element={<ProtectedRoute role="customer" element={<SearchPage />} />} />
+          <Route path="/ai-match" element={<ProtectedRoute role="customer" element={<AIChatbotPage />} />} />
+          <Route path="/salon/:id" element={<ProtectedRoute role="customer" element={<SalonProfilePage />} />} />
+          <Route path="/booking/:id" element={<ProtectedRoute role="customer" element={<BookingPage />} />} />
+          <Route path="/profile" element={<ProtectedRoute role="customer" element={<ProfilePage />} />} />
+
+          {/* Owner-only route */}
+          <Route path="/dashboard" element={<ProtectedRoute role="owner" element={<OwnerDashboard />} />} />
           <Route path="*" element={
             <div style={{ textAlign: 'center', padding: '80px 24px' }}>
               <div style={{ fontSize: 40, marginBottom: 16 }}>—</div>

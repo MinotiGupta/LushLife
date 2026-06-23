@@ -238,7 +238,13 @@ export default function IntroPage() {
 
   // Redirect if logged in
   useEffect(() => {
-    if (user) navigate('/search', { replace: true });
+    if (user) {
+      if (user.role === 'owner') {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/search', { replace: true });
+      }
+    }
   }, [user, navigate]);
 
   // ── PARTICLE TRAIL ────────────────────────────────────────
