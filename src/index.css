@@ -3174,3 +3174,107 @@ p { font-family: var(--font-body); }
   background: #000; /* Always dark */
   color: #fff;
 }
+
+/* ============================================
+   SALON CARD — Enhanced (Google Places)
+   ============================================ */
+
+/* Verified badge */
+.salon-card-verified {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(22, 163, 74, 0.92);
+  color: white;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  backdrop-filter: blur(4px);
+}
+
+/* Star rating row */
+.salon-card-stars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 10px;
+}
+
+.salon-card-star-score {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-left: 4px;
+}
+
+.salon-card-star-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+/* Service chips row */
+.salon-card-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+/* Phone link */
+.salon-card-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--rose);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 4px 8px;
+  border: 1px solid var(--rose-pale);
+  border-radius: var(--radius-full);
+  transition: all 0.2s;
+}
+
+.salon-card-phone:hover {
+  background: var(--rose-pale);
+  border-color: var(--rose);
+}
+
+/* Meta footer row */
+.salon-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Loading skeleton pulse */
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.25; }
+}
+
+/* Search page: top-level wrapper (outside .search-layout) */
+.search-page-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 20px 24px 0;
+}
+
+/* Last synced banner */
+.sync-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
