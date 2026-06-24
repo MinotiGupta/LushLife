@@ -72,13 +72,8 @@ export default function AIChatbotPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 420px', gap: 24 }}>
-<<<<<<< Updated upstream
-        <div style={{ background: 'var(--bg)', border: '1px solid var(--border-light)', borderRadius: '24px', padding: 24, minHeight: 520, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
-=======
         <div className="glass-panel" style={{ borderRadius: '24px', padding: 24, height: '65vh', minHeight: '520px', display: 'flex', flexDirection: 'column' }}>
           <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }} id="chat-scroll-container">
->>>>>>> Stashed changes
             {chatMessages.map((msg, index) => (
               <div key={index} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 14 }}>
                 <div style={{
