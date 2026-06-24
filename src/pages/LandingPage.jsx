@@ -112,7 +112,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Hero App Mockup */}
+          {/* Hero App Mockup jsd */}
           <div style={{ marginTop: 60, transform: 'perspective(1000px) rotateY(10deg) rotateX(5deg)', transformStyle: 'preserve-3d', transition: 'all 0.4s ease' }} 
                className="hero-mockup-wrapper"
                onMouseMove={(e) => {
