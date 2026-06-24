@@ -41,7 +41,7 @@ export function AuthProvider({ children }) {
     // Create the new user
     const now = new Date();
     const monthYear = now.toLocaleString('en-IN', { month: 'long', year: 'numeric' });
-    const newUser = { email, password, name, phone: '', avatar: '🌺', memberSince: monthYear };
+    const newUser = { email, password, name, phone: '', avatar: '🌺', memberSince: monthYear, role: 'customer' };
     MOCK_USERS.push(newUser);
     // Log them in immediately
     const { password: _, ...safeUser } = newUser;
