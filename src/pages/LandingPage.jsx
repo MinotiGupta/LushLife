@@ -104,7 +104,15 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Hero App Mockup */}
+          {/* Hailey/Shiv Quote */}
+          <div style={{ marginTop: 48, fontSize: 14, color: 'var(--text-muted)', fontStyle: 'italic', maxWidth: 420, lineHeight: 1.6 }}>
+            "If you're not going to sleep looking like a glazed donut, you're not doing it right!"
+            <div style={{ marginTop: 8, fontStyle: 'normal', fontWeight: 600, fontSize: 13, opacity: 0.8 }}>
+              — Shiv
+            </div>
+          </div>
+
+          {/* Hero App Mockup jsd */}
           <div style={{ marginTop: 60, transform: 'perspective(1000px) rotateY(10deg) rotateX(5deg)', transformStyle: 'preserve-3d', transition: 'all 0.4s ease' }} 
                className="hero-mockup-wrapper"
                onMouseMove={(e) => {

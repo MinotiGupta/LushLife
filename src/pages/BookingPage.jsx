@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Check, ChevronRight } from 'lucide-react';
 import { addBooking } from '../data/bookings.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const STEP_LABELS = ['Service', 'Stylist', 'Date & Time', 'Confirm'];
 
@@ -46,7 +47,9 @@ export default function BookingPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const preSelectedService = searchParams.get('service');
-
+  
+  const { user } = useAuth();
+  
   const [salon, setSalon] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -56,9 +59,9 @@ export default function BookingPage() {
     stylist: undefined,
     day: 0,
     time: null,
-    name: '',
-    phone: '',
-    email: '',
+    name: user?.name || '',
+    phone: user?.phone || '',
+    email: user?.email || '',
   });
   const [bookingId, setBookingId] = useState('');
   const [confirmed, setConfirmed] = useState(false);
@@ -67,19 +70,12 @@ export default function BookingPage() {
     window.scrollTo(0, 0);
     const fetchSalon = async () => {
       try {
-        const res = await fetch(`/api/salons/${id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setSalon({
-            id: data._id || data.id,
-            name: data.name,
-            locality: data.locality,
-            address: data.address || `${data.locality}, Hyderabad`,
-            coverPhoto: data.photos && data.photos.length > 0 ? data.photos[0].url : 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80',
-            rating: data.rating_avg || 4.0,
-            services: data.services || [],
-            stylists: data.stylists || [],
-          });
+        const { SALONS } = await import('../data/salons.js');
+        const found = SALONS.find(s => s.id === id);
+        if (found) {
+          setSalon(found);
+        } else {
+          console.error("Salon not found");
         }
       } catch (err) {
         console.error(err);
@@ -118,7 +114,7 @@ export default function BookingPage() {
     dateStr.setDate(dateStr.getDate() + booking.day);
     const dateFormatted = dateStr.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
-    addBooking(booking.email, {
+    addBooking(user?.email || booking.email, {
       id: id,
       salonId: salon.id,
       salonName: salon.name,

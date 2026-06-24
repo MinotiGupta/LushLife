@@ -19,88 +19,44 @@ export default function SalonProfilePage() {
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     setSubmittingReview(true);
-    try {
-      const res = await fetch(`/api/salons/${id}/reviews`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reviewForm)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setSalon(prev => ({
-          ...prev,
-          reviews: [
-            {
-              name: data.review.author,
-              rating: data.review.rating,
-              date: data.review.time,
-              text: data.review.text,
-              verified: false,
-              profilePhoto: data.review.profile_photo
-            },
-            ...prev.reviews
-          ]
-        }));
-        setShowReviewForm(false);
-        setReviewForm({ author: '', rating: 5, text: '' });
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
+    // Mock review submission
+    setTimeout(() => {
+      setSalon(prev => ({
+        ...prev,
+        reviews: [
+          {
+            name: reviewForm.author || "Guest User",
+            rating: reviewForm.rating,
+            date: "Just now",
+            text: reviewForm.text,
+            verified: false,
+          },
+          ...prev.reviews
+        ]
+      }));
+      setShowReviewForm(false);
+      setReviewForm({ author: '', rating: 5, text: '' });
       setSubmittingReview(false);
-    }
+    }, 600);
   };
+  
   useEffect(() => {
     const fetchSalon = async () => {
       try {
-        const res = await fetch(`/api/salons/${id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setSalon({
-            id: data._id || data.id,
-            name: data.name,
-            locality: data.locality,
-            description: data.description,
-            coverPhoto: data.photos && data.photos.length > 0 ? data.photos[0].url : 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80',
-            address: `${data.locality}, Hyderabad`,
-            rating: data.rating_avg || 4.0,
-            reviewCount: data.review_count || 0,
-            openNow: data.is_open_now,
-            hours: data.opening_hours || "Contact for hours",
-            tags: data.photos && data.photos.length > 0 ? data.photos[0].ai_tags : ['salon'],
-            matchScore: 92,
-            matchReason: "This salon matches your 'everyday' needs perfectly with expert stylists for your profile.",
-            phone: data.phone || "N/A",
-            sentiment: data.sentiment_summary || "clean, professional, quick",
-            coordinates: data.location?.coordinates || null,
-            address: data.address || `${data.locality}, Hyderabad`,
-            photos: (data.photos || []).map(p => ({ url: p.url, tags: p.ai_tags || [] })),
-            services: (data.services || []).map(s => ({
-              name: s.name,
-              duration: `${s.duration_min} mins`,
-              price: s.price
-            })),
-            stylists: (data.stylists || []).map(st => ({
-              emoji: "👩‍🦱",
-              name: st.name,
-              specialty: st.bio || "Stylist"
-            })),
-            reviews: (data.google_reviews || []).map(r => ({
-              name: r.author || "Anonymous",
-              rating: r.rating || 5,
-              date: r.time || "recently",
-              text: r.text || "Great experience!",
-              verified: true,
-              profilePhoto: r.profile_photo || ""
-            }))
-          });
+        const { SALONS } = await import('../data/salons.js');
+        const found = SALONS.find(s => s.id === id);
+        if (found) {
+          setSalon(found);
+        } else {
+          console.error("Salon not found");
         }
       } catch (err) {
-        console.error("Failed to fetch salon profile", err);
+        console.error("Failed to load mock salon profile", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchSalon();
   }, [id]);
 

@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import routers
 from routers import salons, bookings, ai, owner
 
-app = FastAPI(title="LushLife API")
+app = FastAPI(title="LushLife API", redirect_slashes=False)
 
 app.add_middleware(
     CORSMiddleware,

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send, MessageCircle } from 'lucide-react';
+import { SALONS } from '../data/salons.js';
 import { getChatbotResponse, simulateStreaming } from '../ai/matchSalons.js';
 
 const SUGGESTED_PROMPTS = [
@@ -23,7 +24,10 @@ export default function AIChatbotPage() {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = document.getElementById('chat-scroll-container');
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }, [chatMessages]);
 
   const addMessage = (message) => setChatMessages(prev => [...prev, message]);
@@ -39,22 +43,27 @@ export default function AIChatbotPage() {
 
     await new Promise(r => setTimeout(r, 300));
 
-    const responseText = getChatbotResponse(userMsg, null);
-    let streamed = '';
-    addMessage({ role: 'ai', text: '' });
+    try {
+      const responseText = getChatbotResponse(userMsg, null);
+      let streamed = '';
+      addMessage({ role: 'ai', text: '' });
 
-    simulateStreaming(
-      responseText,
-      (chunk) => {
-        streamed += chunk;
-        setChatMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: 'ai', text: streamed };
-          return updated;
-        });
-      },
-      () => setIsChatting(false)
-    );
+      simulateStreaming(
+        responseText,
+        (chunk) => {
+          streamed += chunk;
+          setChatMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: 'ai', text: streamed };
+            return updated;
+          });
+        },
+        () => setIsChatting(false)
+      );
+    } catch (error) {
+      console.error(error);
+      setIsChatting(false);
+    }
   };
 
   const handlePrompt = (prompt) => {
@@ -84,6 +93,7 @@ export default function AIChatbotPage() {
                   padding: '14px 16px',
                   fontSize: 14,
                   lineHeight: 1.6,
+                  whiteSpace: 'pre-wrap',
                   boxShadow: msg.role === 'user' ? '0 6px 20px rgba(236, 72, 153, 0.08)' : '0 6px 20px rgba(15, 23, 42, 0.04)'
                 }}>
                   {msg.text}

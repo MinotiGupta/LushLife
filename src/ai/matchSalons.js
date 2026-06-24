@@ -202,13 +202,27 @@ function findSalonsForQuestion(q) {
 }
 
 export function getChatbotResponse(question, salon = null) {
-  const q = question.toLowerCase();
+  const q = question.toLowerCase().trim();
+  
+  // Specific mock fallbacks requested by user
+  if (q === 'hey') {
+    return "Hey there! 👋 I am your personal LushLife AI stylist assistant. I can help you find the perfect salon match based on your hair type, budget, desired services, or location. How can I help you today?";
+  }
+  
+  if (q === 'i want to get my haircolored for cheap, what salon do you recommend?') {
+    return "If you're looking for an affordable yet professional hair coloring service, I highly recommend The Beauty Room SR Nagar. They offer root touch-ups starting at just ₹800 and full hair color starting around ₹1,500. They use standard ammonia-free products and are highly rated (4.3⭐) for their budget-friendly color transformations. Another great option is Glamour Edge in Dilsukhnagar which offers global coloring from ₹1,800. Would you like me to book an appointment for you at either of these?";
+  }
+  
+  if (q === 'suggest some salons in similar price ranges') {
+    return "Absolutely! If you're looking for excellent value under ₹2,000 for color and chemical services, here are three highly recommended budget-friendly salons:\n\n1. Glow & Go Studio (KPHB) - Starting at ₹500 for basics, and they have a fantastic ₹1,500 combo for Hair Spa + Global Color. Very popular among students!\n2. Tress Lounge (Kondapur) - They offer creative highlights starting at just ₹1,200. It's a cozy setup but the stylists are very skilled.\n3. Looks & Locks (Ameerpet) - Known for their ₹999 'Express Makeover' which includes a premium haircut and root touch-up.\n\nAll of these options maintain strict hygiene standards despite the affordable pricing. Do any of these catch your eye?";
+  }
 
   if (!salon) {
     const matches = findSalonsForQuestion(q);
-    return `Here are the top ${matches.length} salons for your request:
-${matches.map((salon, idx) => `${idx + 1}. ${buildSalonSummary(salon)}`).join('\n')}
-Tell me if you want me to narrow this by price, area, or service type.`;
+    if (!matches || matches.length === 0) {
+      return "I couldn't find an exact match for that request in my database. Could you try specifying your desired service (like 'balayage', 'keratin', or 'bridal'), your budget, or your preferred location in Hyderabad?";
+    }
+    return `Based on your request, I've analyzed our partner salons and here are the top ${matches.length} matches tailored for you:\n\n${matches.map((salon, idx) => `**${idx + 1}. ${salon.name}** (${salon.locality})\n   Starting at ₹${salon.priceFrom} | Rating: ${salon.rating}⭐\n   *Why it's a match:* ${salon.tags[0] ? `They specialize in ${salon.tags[0]}` : salon.description.slice(0, 60)}...`).join('\n\n')}\n\nLet me know if you want me to narrow this down by a specific budget or area!`;
   }
 
   if (q.includes('balayage') || q.includes('highlight')) {
