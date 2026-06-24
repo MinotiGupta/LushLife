@@ -159,21 +159,6 @@ The API will be available at `http://localhost:8000`. You can view auto-generate
 
 ---
 
-## 🤖 AI Matching System
-
-The quiz collects four user inputs and scores each salon out of 100 across four weighted dimensions:
-
-| Signal | Weight | Logic |
-|---|---|---|
-| Hair type | 40 pts | Matches against salon name, description, tags, and services |
-| Occasion | 30 pts | Bridal/party/treatment tags and services |
-| Budget | 20 pts | Price floor vs. selected budget with a 30% leniency buffer |
-| Locality | 10 pts | Exact area match; nearby areas get a partial bonus |
-
-Scores are normalised to the 40–100 range to avoid discouraging results, and each match surfaces a human-readable reason explaining *why* that salon was recommended.
-
----
-
 ## 📄 License
 
 This project is private and not currently licensed for public distribution.
